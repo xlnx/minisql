@@ -1,3 +1,0 @@
-C:/Users/Koishi/Desktop/minisql/build/CMakeFiles/minisql.dir
-C:/Users/Koishi/Desktop/minisql/build/CMakeFiles/edit_cache.dir
-C:/Users/Koishi/Desktop/minisql/build/CMakeFiles/rebuild_cache.dir

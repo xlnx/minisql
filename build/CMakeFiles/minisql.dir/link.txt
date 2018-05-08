@@ -1,3 +1,0 @@
-D:\CMake\bin\cmake.exe -E remove -f CMakeFiles\minisql.dir/objects.a
-D:\mingw-w64\mingw64\bin\ar.exe cr CMakeFiles\minisql.dir/objects.a @CMakeFiles\minisql.dir\objects1.rsp
-D:\mingw-w64\mingw64\bin\g++.exe  -Wno-parentheses -Wno-noexcept-type -Wno-unused-variable -static-libgcc -static-libstdc++ -pg -DDEBUG -g   -Wl,--whole-archive CMakeFiles\minisql.dir/objects.a -Wl,--no-whole-archive  -o minisql.exe -Wl,--out-implib,libminisql.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\minisql.dir\linklibs.rsp
