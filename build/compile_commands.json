@@ -1,0 +1,7 @@
+[
+{
+  "directory": "C:/Users/Koishi/Desktop/minisql/build",
+  "command": "D:\\mingw-w64\\mingw64\\bin\\g++.exe   @CMakeFiles/minisql.dir/includes_CXX.rsp -g   -std=gnu++14 -o CMakeFiles\\minisql.dir\\src\\minisql.cpp.obj -c C:\\Users\\Koishi\\Desktop\\minisql\\src\\minisql.cpp",
+  "file": "C:/Users/Koishi/Desktop/minisql/src/minisql.cpp"
+}
+]
