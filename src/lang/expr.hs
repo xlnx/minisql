@@ -190,5 +190,14 @@
 		})
 	|"exprf"_p
 		>> Pass(),
-// "exprf"_p = 
-	
+"exprf"_p = 
+	"integer"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return ast.term(0).get<int>();
+		})
+	|"id"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return ast.term(0).get<std::string>();
+		})
+	|"("_t + "expr"_p + ")"_t
+		>> Pass(),

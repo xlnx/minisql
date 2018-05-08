@@ -34,7 +34,7 @@ void Interpreter::interpret(const std::string &sql_insts)
 	}
 	catch (parser<AstType>::exception_type e)
 	{
-		std::cerr << e.what();
+		std::cout << "minisql-interpreter" << e.what() << std::endl;
 	}
 }
 	

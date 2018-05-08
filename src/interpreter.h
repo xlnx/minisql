@@ -5,6 +5,7 @@
 #include <new_parser/parser.h>
 #include <new_parser/variant/variant.h>
 #include <string>
+#include <vector>
 
 namespace minisql
 {
@@ -12,9 +13,10 @@ namespace minisql
 class Interpreter
 {
 public:
-	using ValueType = variant<Sheet, Expr, int>;
+	using ValueType = variant<Sheet, Expr, int, std::string>;
 	using AstType = ast<ValueType>;
 	using CharType = char;
+	
 	using reflect = make_reflect<AstType>;
 private:
 	using LexerInitElemType = reflected_lexer_init_element<AstType, CharType>;
