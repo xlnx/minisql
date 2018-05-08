@@ -1,7 +1,17 @@
 [
 {
   "directory": "C:/Users/Koishi/Desktop/minisql/build",
-  "command": "D:\\mingw-w64\\mingw64\\bin\\g++.exe   @CMakeFiles/minisql.dir/includes_CXX.rsp -g   -std=gnu++14 -o CMakeFiles\\minisql.dir\\src\\minisql.cpp.obj -c C:\\Users\\Koishi\\Desktop\\minisql\\src\\minisql.cpp",
+  "command": "D:\\mingw-w64\\mingw64\\bin\\g++.exe   @CMakeFiles/minisql.dir/includes_CXX.rsp  -Wno-parentheses -Wno-noexcept-type -Wno-unused-variable -static-libgcc -static-libstdc++ -pg -DDEBUG -g   -std=gnu++14 -o CMakeFiles\\minisql.dir\\src\\interpreter.cpp.obj -c C:\\Users\\Koishi\\Desktop\\minisql\\src\\interpreter.cpp",
+  "file": "C:/Users/Koishi/Desktop/minisql/src/interpreter.cpp"
+},
+{
+  "directory": "C:/Users/Koishi/Desktop/minisql/build",
+  "command": "D:\\mingw-w64\\mingw64\\bin\\g++.exe   @CMakeFiles/minisql.dir/includes_CXX.rsp  -Wno-parentheses -Wno-noexcept-type -Wno-unused-variable -static-libgcc -static-libstdc++ -pg -DDEBUG -g   -std=gnu++14 -o CMakeFiles\\minisql.dir\\src\\minisql.cpp.obj -c C:\\Users\\Koishi\\Desktop\\minisql\\src\\minisql.cpp",
   "file": "C:/Users/Koishi/Desktop/minisql/src/minisql.cpp"
+},
+{
+  "directory": "C:/Users/Koishi/Desktop/minisql/build",
+  "command": "D:\\mingw-w64\\mingw64\\bin\\g++.exe   @CMakeFiles/minisql.dir/includes_CXX.rsp  -Wno-parentheses -Wno-noexcept-type -Wno-unused-variable -static-libgcc -static-libstdc++ -pg -DDEBUG -g   -std=gnu++14 -o CMakeFiles\\minisql.dir\\src\\details\\expression.cpp.obj -c C:\\Users\\Koishi\\Desktop\\minisql\\src\\details\\expression.cpp",
+  "file": "C:/Users/Koishi/Desktop/minisql/src/details/expression.cpp"
 }
 ]

@@ -4,6 +4,8 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
+  "C:/Users/Koishi/Desktop/minisql/src/details/expression.cpp" "C:/Users/Koishi/Desktop/minisql/build/CMakeFiles/minisql.dir/src/details/expression.cpp.obj"
+  "C:/Users/Koishi/Desktop/minisql/src/interpreter.cpp" "C:/Users/Koishi/Desktop/minisql/build/CMakeFiles/minisql.dir/src/interpreter.cpp.obj"
   "C:/Users/Koishi/Desktop/minisql/src/minisql.cpp" "C:/Users/Koishi/Desktop/minisql/build/CMakeFiles/minisql.dir/src/minisql.cpp.obj"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
@@ -11,6 +13,7 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "../include"
+  "../src"
   )
 
 # Targets to which this target links.

@@ -56,10 +56,24 @@ include CMakeFiles/minisql.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/minisql.dir/flags.make
 
+CMakeFiles/minisql.dir/src/interpreter.cpp.obj: CMakeFiles/minisql.dir/flags.make
+CMakeFiles/minisql.dir/src/interpreter.cpp.obj: CMakeFiles/minisql.dir/includes_CXX.rsp
+CMakeFiles/minisql.dir/src/interpreter.cpp.obj: ../src/interpreter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Koishi\Desktop\minisql\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/minisql.dir/src/interpreter.cpp.obj"
+	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\minisql.dir\src\interpreter.cpp.obj -c C:\Users\Koishi\Desktop\minisql\src\interpreter.cpp
+
+CMakeFiles/minisql.dir/src/interpreter.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/minisql.dir/src/interpreter.cpp.i"
+	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Koishi\Desktop\minisql\src\interpreter.cpp > CMakeFiles\minisql.dir\src\interpreter.cpp.i
+
+CMakeFiles/minisql.dir/src/interpreter.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/minisql.dir/src/interpreter.cpp.s"
+	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Koishi\Desktop\minisql\src\interpreter.cpp -o CMakeFiles\minisql.dir\src\interpreter.cpp.s
+
 CMakeFiles/minisql.dir/src/minisql.cpp.obj: CMakeFiles/minisql.dir/flags.make
 CMakeFiles/minisql.dir/src/minisql.cpp.obj: CMakeFiles/minisql.dir/includes_CXX.rsp
 CMakeFiles/minisql.dir/src/minisql.cpp.obj: ../src/minisql.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Koishi\Desktop\minisql\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/minisql.dir/src/minisql.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Koishi\Desktop\minisql\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/minisql.dir/src/minisql.cpp.obj"
 	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\minisql.dir\src\minisql.cpp.obj -c C:\Users\Koishi\Desktop\minisql\src\minisql.cpp
 
 CMakeFiles/minisql.dir/src/minisql.cpp.i: cmake_force
@@ -70,19 +84,37 @@ CMakeFiles/minisql.dir/src/minisql.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/minisql.dir/src/minisql.cpp.s"
 	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Koishi\Desktop\minisql\src\minisql.cpp -o CMakeFiles\minisql.dir\src\minisql.cpp.s
 
+CMakeFiles/minisql.dir/src/details/expression.cpp.obj: CMakeFiles/minisql.dir/flags.make
+CMakeFiles/minisql.dir/src/details/expression.cpp.obj: CMakeFiles/minisql.dir/includes_CXX.rsp
+CMakeFiles/minisql.dir/src/details/expression.cpp.obj: ../src/details/expression.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Koishi\Desktop\minisql\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/minisql.dir/src/details/expression.cpp.obj"
+	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\minisql.dir\src\details\expression.cpp.obj -c C:\Users\Koishi\Desktop\minisql\src\details\expression.cpp
+
+CMakeFiles/minisql.dir/src/details/expression.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/minisql.dir/src/details/expression.cpp.i"
+	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Koishi\Desktop\minisql\src\details\expression.cpp > CMakeFiles\minisql.dir\src\details\expression.cpp.i
+
+CMakeFiles/minisql.dir/src/details/expression.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/minisql.dir/src/details/expression.cpp.s"
+	cd /d C:\Users\Koishi\Desktop\minisql\build && D:\mingw-w64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Koishi\Desktop\minisql\src\details\expression.cpp -o CMakeFiles\minisql.dir\src\details\expression.cpp.s
+
 # Object files for target minisql
 minisql_OBJECTS = \
-"CMakeFiles/minisql.dir/src/minisql.cpp.obj"
+"CMakeFiles/minisql.dir/src/interpreter.cpp.obj" \
+"CMakeFiles/minisql.dir/src/minisql.cpp.obj" \
+"CMakeFiles/minisql.dir/src/details/expression.cpp.obj"
 
 # External object files for target minisql
 minisql_EXTERNAL_OBJECTS =
 
+minisql.exe: CMakeFiles/minisql.dir/src/interpreter.cpp.obj
 minisql.exe: CMakeFiles/minisql.dir/src/minisql.cpp.obj
+minisql.exe: CMakeFiles/minisql.dir/src/details/expression.cpp.obj
 minisql.exe: CMakeFiles/minisql.dir/build.make
 minisql.exe: CMakeFiles/minisql.dir/linklibs.rsp
 minisql.exe: CMakeFiles/minisql.dir/objects1.rsp
 minisql.exe: CMakeFiles/minisql.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\Koishi\Desktop\minisql\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable minisql.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=C:\Users\Koishi\Desktop\minisql\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable minisql.exe"
 	cd /d C:\Users\Koishi\Desktop\minisql\build && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\minisql.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

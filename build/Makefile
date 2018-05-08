@@ -122,6 +122,60 @@ minisql/fast:
 	$(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/build
 .PHONY : minisql/fast
 
+src/details/expression.obj: src/details/expression.cpp.obj
+
+.PHONY : src/details/expression.obj
+
+# target to build an object file
+src/details/expression.cpp.obj:
+	cd /d c:\users\koishi\desktop\minisql\build && $(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/src/details/expression.cpp.obj
+.PHONY : src/details/expression.cpp.obj
+
+src/details/expression.i: src/details/expression.cpp.i
+
+.PHONY : src/details/expression.i
+
+# target to preprocess a source file
+src/details/expression.cpp.i:
+	cd /d c:\users\koishi\desktop\minisql\build && $(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/src/details/expression.cpp.i
+.PHONY : src/details/expression.cpp.i
+
+src/details/expression.s: src/details/expression.cpp.s
+
+.PHONY : src/details/expression.s
+
+# target to generate assembly for a file
+src/details/expression.cpp.s:
+	cd /d c:\users\koishi\desktop\minisql\build && $(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/src/details/expression.cpp.s
+.PHONY : src/details/expression.cpp.s
+
+src/interpreter.obj: src/interpreter.cpp.obj
+
+.PHONY : src/interpreter.obj
+
+# target to build an object file
+src/interpreter.cpp.obj:
+	cd /d c:\users\koishi\desktop\minisql\build && $(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/src/interpreter.cpp.obj
+.PHONY : src/interpreter.cpp.obj
+
+src/interpreter.i: src/interpreter.cpp.i
+
+.PHONY : src/interpreter.i
+
+# target to preprocess a source file
+src/interpreter.cpp.i:
+	cd /d c:\users\koishi\desktop\minisql\build && $(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/src/interpreter.cpp.i
+.PHONY : src/interpreter.cpp.i
+
+src/interpreter.s: src/interpreter.cpp.s
+
+.PHONY : src/interpreter.s
+
+# target to generate assembly for a file
+src/interpreter.cpp.s:
+	cd /d c:\users\koishi\desktop\minisql\build && $(MAKE) -f CMakeFiles\minisql.dir\build.make CMakeFiles/minisql.dir/src/interpreter.cpp.s
+.PHONY : src/interpreter.cpp.s
+
 src/minisql.obj: src/minisql.cpp.obj
 
 .PHONY : src/minisql.obj
@@ -158,6 +212,12 @@ help:
 	@echo ... minisql
 	@echo ... edit_cache
 	@echo ... rebuild_cache
+	@echo ... src/details/expression.obj
+	@echo ... src/details/expression.i
+	@echo ... src/details/expression.s
+	@echo ... src/interpreter.obj
+	@echo ... src/interpreter.i
+	@echo ... src/interpreter.s
 	@echo ... src/minisql.obj
 	@echo ... src/minisql.i
 	@echo ... src/minisql.s

@@ -161,6 +161,7 @@ class parser
 public:
 	using exception_type = typename reflected_lexer<AstTy, CharTy>::exception_type;
 		//parser_exception<reflected_lexer<AstTy, CharTy>>;
+
 	template <class... Args, typename = typename
 			std::enable_if<
 				tmp_and<
@@ -171,7 +172,12 @@ public:
 			>::type
 		>
 		parser(reflected_lexer<AstTy, CharTy>& engine, const Args&... args):
-			lex(engine), params(args...), signs(lex.signs)
+			parser(engine, param_list(args...))
+		{
+		}
+	parser(reflected_lexer<AstTy, CharTy>& engine, const param_list& ps):
+		
+			lex(engine), params(ps), signs(lex.signs)
 		{
 			element start = params.back();
 			params = params | parser_init_element<AstTy>(

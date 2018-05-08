@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/minisql.dir/src/interpreter.cpp.obj"
   "CMakeFiles/minisql.dir/src/minisql.cpp.obj"
+  "CMakeFiles/minisql.dir/src/details/expression.cpp.obj"
   "minisql.pdb"
   "minisql.exe"
   "minisql.exe.manifest"

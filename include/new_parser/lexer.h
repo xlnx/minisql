@@ -6,7 +6,6 @@
 #include <sstream>
 
 
-
 template <typename CharT = char>
 class lexer
 {
@@ -117,8 +116,14 @@ public:
 					return { rule.value, res, row, unsigned(q - &lines[row][0]) };
 				}
 			}
+			auto itr = iter;
+			auto iter_ln = itr;
+			while (*iter_ln && *iter_ln != '\n') ++ iter_ln;
 			iter = &str[str.length()];
-			throw std::bad_cast();
+			throw exception_type(string_type(itr, unsigned(iter_ln - itr)), 
+				lines.size(), unsigned(itr - &lines.back()[0]), 
+				string_type(lines.back(), iter_ln));
+			// throw std::bad_cast();
 		}
 		else
 		{
