@@ -20,9 +20,9 @@
 			std::cerr << "id" << std::endl;
 			return ValueType();
 		})
-	|"integer"_t
+	|"number"_t
 		>> reflect([](AstType &ast) -> ValueType {
-			std::cerr << "integer" << std::endl;
+			std::cerr << "number" << std::endl;
 			return ValueType();
 		})
 	|"expr"_p

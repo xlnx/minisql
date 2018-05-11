@@ -10,7 +10,8 @@ Value Type::operator - (const Value &other) const
 Value Type::operator * (const Value &other) const
 	{ return toNumber() * other->toNumber(); }
 Value Type::operator / (const Value &other) const
-	{ return toNumber() / other->toNumber(); }
+	{ return other->toNumber().value == 0 ? std::make_unique<Null>() :
+		toNumber() / other->toNumber(); }
 Value Type::operator % (const Value &other) const
 	{ return toNumber() % other->toNumber(); }
 Value Type::operator | (const Value &other) const
@@ -65,6 +66,10 @@ String String::toString() const
 {
 	return *this;
 }
+void String::write(std::ostream &os) const
+{
+	os << "\"" << value << "\"";
+}
 
 Number Number::toNumber() const
 {
@@ -80,6 +85,10 @@ String Number::toString() const
 	os << (value ? 1 : 0);
 	return os.str();
 }
+void Number::write(std::ostream &os) const
+{
+	os << value;
+}
 
 Number Bool::toNumber() const
 {
@@ -94,6 +103,27 @@ String Bool::toString() const
 	std::ostringstream os;
 	os << (value ? 1 : 0);
 	return os.str();
+}
+void Bool::write(std::ostream &os) const
+{
+	os << (value ? "true" : "false");
+}
+
+Number Null::toNumber() const
+{
+	return Number();
+}
+Bool Null::toBool() const
+{
+	return Bool();
+}
+String Null::toString() const
+{
+	return String();
+}
+void Null::write(std::ostream &os) const
+{
+	os << "null";
 }
 
 }

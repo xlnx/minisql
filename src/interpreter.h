@@ -13,7 +13,7 @@ namespace minisql
 class Interpreter
 {
 public:
-	using ValueType = std::variant<Sheet, Expr, int, std::string>;
+	using ValueType = std::variant<Sheet, Expr, double, std::string>;
 	using AstType = ast<ValueType>;
 	using CharType = char;
 	

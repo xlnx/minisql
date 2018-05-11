@@ -29,6 +29,8 @@ public:
 	virtual Bool toBool() const = 0;
 	virtual Number toNumber() const = 0;
 
+	virtual void write(std::ostream &os) const = 0;
+
 	virtual Value operator + (const Value &other) const;
 	virtual Value operator - (const Value &other) const;
 	virtual Value operator * (const Value &other) const;
@@ -54,29 +56,116 @@ public:
 	virtual Value operator || (const Value &other) const;
 };
 
-inline Value operator + (const Value &lhs, const Value &rhs) { return *lhs + rhs; }
-inline Value operator - (const Value &lhs, const Value &rhs) { return *lhs - rhs; }
-inline Value operator * (const Value &lhs, const Value &rhs) { return *lhs * rhs; }
-inline Value operator / (const Value &lhs, const Value &rhs) { return *lhs / rhs; }
-inline Value operator % (const Value &lhs, const Value &rhs) { return *lhs % rhs; }
-inline Value operator | (const Value &lhs, const Value &rhs) { return *lhs | rhs; }
-inline Value operator & (const Value &lhs, const Value &rhs) { return *lhs & rhs; }
-inline Value operator ^ (const Value &lhs, const Value &rhs) { return *lhs ^ rhs; }
-inline Value operator << (const Value &lhs, const Value &rhs) { return *lhs << rhs; }
-inline Value operator >> (const Value &lhs, const Value &rhs) { return *lhs >> rhs; }
+class Null: public Type
+{
+public:
+	Null() = default;
 
-inline Value operator ! (const Value &rhs) { return !*rhs; }
-inline Value operator ~ (const Value &rhs) { return ~*rhs; }
+	Number toNumber() const override;
+	Bool toBool() const override;
+	String toString() const override;
+	void write(std::ostream &os) const override;
+};
 
-inline Value operator == (const Value &lhs, const Value &rhs) { return *lhs == rhs; }
-inline Value operator != (const Value &lhs, const Value &rhs) { return *lhs != rhs; }
-inline Value operator > (const Value &lhs, const Value &rhs) { return *lhs > rhs; }
-inline Value operator < (const Value &lhs, const Value &rhs) { return *lhs < rhs; }
-inline Value operator >= (const Value &lhs, const Value &rhs) { return *lhs >= rhs; }
-inline Value operator <= (const Value &lhs, const Value &rhs) { return *lhs <= rhs; }
+inline Value operator + (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs + rhs; }
+inline Value operator - (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs - rhs; }
+inline Value operator * (const Value &lhs, const Value &rhs) {
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs * rhs; }
+inline Value operator / (const Value &lhs, const Value &rhs) {
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs / rhs; }
+inline Value operator % (const Value &lhs, const Value &rhs) {
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>() 
+			: *lhs % rhs; }
+inline Value operator | (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs | rhs; }
+inline Value operator & (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs & rhs; }
+inline Value operator ^ (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs ^ rhs; }
+inline Value operator << (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs << rhs; }
+inline Value operator >> (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs >> rhs; }
 
-inline Value operator && (const Value &lhs, const Value &rhs) { return *lhs && rhs; }
-inline Value operator || (const Value &lhs, const Value &rhs) { return *lhs || rhs; }
+inline Value operator ! (const Value &rhs) { 
+	return dynamic_cast<const Null*>(rhs.get()) ?
+			std::make_unique<Null>() : !*rhs; }
+inline Value operator ~ (const Value &rhs) { 
+	return dynamic_cast<const Null*>(rhs.get()) ? 
+			std::make_unique<Null>() : ~*rhs; }
+
+inline Value operator == (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs == rhs; }
+inline Value operator != (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs != rhs; }
+inline Value operator > (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs > rhs; }
+inline Value operator < (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs < rhs; }
+inline Value operator >= (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs >= rhs; }
+inline Value operator <= (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs <= rhs; }
+
+inline Value operator && (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs && rhs; }
+inline Value operator || (const Value &lhs, const Value &rhs) { 
+	return dynamic_cast<const Null*>(lhs.get()) || 
+		dynamic_cast<const Null*>(lhs.get()) ? 
+			std::make_unique<Null>()
+			: *lhs || rhs; }
 
 class String: public Type
 {
@@ -87,9 +176,10 @@ public:
 	{
 	}
 
-	Number toNumber() const;
-	Bool toBool() const;
-	String toString() const;
+	Number toNumber() const override;
+	Bool toBool() const override;
+	String toString() const override;
+	void write(std::ostream &os) const override;
 private:
 	std::string value;
 };
@@ -97,14 +187,15 @@ private:
 class Bool: public Type
 {
 public:
-	Bool(bool val):
+	Bool(bool val = false):
 		value(val)
 	{
 	}
 
-	Number toNumber() const;
-	Bool toBool() const;
-	String toString() const;
+	Number toNumber() const override;
+	Bool toBool() const override;
+	String toString() const override;
+	void write(std::ostream &os) const override;
 
 	Value operator && (const Bool &other) const
 		{ return std::make_unique<Bool>(value && other.value); }
@@ -116,16 +207,17 @@ private:
 
 class Number: public Type
 {
-	friend class String;
+	friend Value Type::operator / (const Value &other) const;
 public:
 	Number(double d = 0):
 		value(d)
 	{
 	}
 
-	Number toNumber() const;
-	Bool toBool() const;
-	String toString() const;
+	Number toNumber() const override;
+	Bool toBool() const override;
+	String toString() const override;
+	void write(std::ostream &os) const override;
 
 	Value operator + (const Number &other) const
 		{ return std::make_unique<Number>(value + other.value); }
@@ -138,9 +230,9 @@ public:
 	Value operator % (const Number &other) const
 		{ return std::make_unique<Number>((long long)value % (long long)other.value); }
 	Value operator | (const Number &other) const
-		{ return std::make_unique<Number>((long long)value + (long long)other.value); }
+		{ return std::make_unique<Number>((long long)value | (long long)other.value); }
 	Value operator & (const Number &other) const
-		{ return std::make_unique<Number>((long long)value + (long long)other.value); }
+		{ return std::make_unique<Number>((long long)value & (long long)other.value); }
 	Value operator ^ (const Number &other) const
 		{ return std::make_unique<Number>((long long)value ^ (long long)other.value); }
 	Value operator << (const Number &other) const
@@ -164,9 +256,14 @@ public:
 		{ return std::make_unique<Number>(value >= other.value); }
 	virtual Value operator <= (const Number &other) const
 		{ return std::make_unique<Number>(value <= other.value); }
-
 private:
 	double value;
 };
+
+inline std::ostream & operator << (std::ostream &os, const Value &e)
+{
+	e->write(os);
+	return os;
+}
 
 }

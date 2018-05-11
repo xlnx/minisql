@@ -3,7 +3,12 @@
 
 "expr"_p =
 	"expr1"_p
-		>> Pass(),
+		>> reflect([](AstType &ast) -> ValueType {
+			auto expr = ast[0].gen();
+			std::cout << "get expr: " << std::get<Expr>(expr) << std::endl;
+			return std::move(expr);
+		}),
+		//Pass(),
 "expr1"_p = 
 	"expr1"_p + "or"_t + "expr2"_p
 		>> reflect([](AstType &ast) -> ValueType {
@@ -183,13 +188,17 @@
 	|"exprf"_p
 		>> Pass(),
 "exprf"_p = 
-	"integer"_t
+	"number"_t
 		>> reflect([](AstType &ast) -> ValueType {
-			return createLiteral(double(std::get<int>(ast.term(0))));
+			return createLiteral(std::get<double>(ast.term(0)));
+		})
+	|"string"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return createLiteral(std::get<std::string>(ast.term(0)));
 		})
 	|"id"_t
 		>> reflect([](AstType &ast) -> ValueType {
-			return createLiteral(std::get<std::string>(ast.term(0)));
+			return createColumn(std::get<std::string>(ast.term(0)));
 		})
 	|"("_t + "expr"_p + ")"_t
 		>> Pass(),

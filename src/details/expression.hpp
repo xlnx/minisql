@@ -37,6 +37,8 @@ class ExprNode
 public:
 	ExprNode() = default;
 	virtual ~ExprNode() = default;
+
+	virtual void write(std::ostream &os) const = 0;
 };
 
 class LiteralNode: public ExprNode
@@ -51,6 +53,8 @@ public:
 		value(std::move(val))
 	{
 	}
+
+	void write(std::ostream &os) const override;
 private:
 	Value value;
 };
@@ -77,6 +81,24 @@ inline LiteralNode::LiteralNode<bool>(const bool &elem):
 {
 }
 
+class ColumnNode: public ExprNode
+{
+public:
+	ColumnNode(const std::string &name):
+		name(name)
+	{
+	}
+	
+	void write(std::ostream &os) const override;
+private:
+	std::string name;
+};
+
+inline Expr createColumn(const std::string &name)
+{
+	return std::make_unique<ColumnNode>(name);
+}
+
 class UnaryExprNode: public ExprNode
 {
 	friend class ExprNode;
@@ -99,6 +121,8 @@ public:
 		}
 	}
 
+	void write(std::ostream &os) const override;
+private:
 	Expr rhs;
 	std::string op;
 };
@@ -141,20 +165,10 @@ public:
 		}
 	}
 
+	void write(std::ostream &os) const override;
+private:
 	Expr lhs, rhs;
 	std::string op;
-};
-
-class ColumnNode: public ExprNode
-{
-public:
-	ColumnNode(const std::string &name):
-		name(name)
-	{
-	}
-	
-private:
-	std::string name;
 };
 
 inline Expr createExpr(Expr lhs, const std::string &op, Expr rhs)
@@ -173,6 +187,32 @@ inline Expr createExpr(const std::string &op, Expr rhs)
 		return UnaryExprNode::evaluate(op, r);
 	else
 		return std::make_unique<UnaryExprNode>(op, std::move(rhs));
+}
+
+inline std::ostream & operator << (std::ostream &os, const Expr &e)
+{
+	e->write(os);
+	return os;
+}
+
+inline void LiteralNode::write(std::ostream &os) const
+{
+	os << value;
+}
+
+inline void UnaryExprNode::write(std::ostream &os) const
+{
+	os << op << " " << rhs;
+}
+
+inline void BinaryExprNode::write(std::ostream &os) const
+{
+	os << lhs << " " << op << " " << rhs;
+}
+
+inline void ColumnNode::write(std::ostream &os) const
+{
+	os << name;
 }
 
 }

@@ -30,8 +30,6 @@
 "and"_t = "and"_riw, 
 "not"_t = "not"_riw, 
 
-"|"_t, 
-"&"_t, 
 "<<"_t, 
 ">>"_t, 
 "-"_t, 
@@ -47,45 +45,47 @@
 "binary"_t = "binary"_riw, 
 "row"_t = "row"_riw, 
 "exists"_t = "exists"_riw, 
-"~"_t, 
-"!"_t, 
 "&&"_t, 
 "||"_t, 
+"|"_t, 
+"&"_t, 
 ","_t, 
-">"_t, 
-"<"_t, 
-"="_t, 
-":="_t, 
 ">="_t, 
 "<="_t, 
 "!="_t, 
 "<>"_t,
+">"_t, 
+"<"_t, 
+"="_t, 
+":="_t, 
 ";"_t,
 "("_t,
 ")"_t,
 ","_t,
+"~"_t, 
+"!"_t, 
 
-"integer"_t =
-	"(?:0[Xx][0-9A-Fa-f]+|0[0-7]*|[1-9][0-9]*)"_rw
+"string"_t = 
+	"\"(?:[^\\\"\\\\]|\\\\.)*\""_r
 		>> lexer_reflect<AstType>([](const ::std::string &src) -> ValueType {
-			if (src[0] == '0')
+			auto s = new char[src.length()], q = s;
+			const char *p = &src[1];
+			while (*p != '"')
 			{
-				if (src.length() > 1 && (src[1] == 'X' || src[1] == 'x'))
-				{
-					::std::istringstream is(src.substr(2));
-					int x; is >> ::std::hex >> x; return x;
-				}
-				else
-				{
-					::std::istringstream is(src.substr(1));
-					int x = 0; is >> ::std::oct >> x; return x;
-				}
+				if ((*q = *p) == '\\') *q = *++p;
+				++p; ++q;
 			}
-			else
-			{
-				::std::istringstream is(src);
-				int x; is >> ::std::dec >> x; return x;
-			}
+			*q = 0;
+			std::string ss = s;
+			delete [] s;
+			return ss;
+		}),
+
+"number"_t =
+	"\\d*\\.\\d+|\\d+\\.\\d*|\\d+|\\d+[eE]-?\\d+"_rw
+		>> lexer_reflect<AstType>([](const ::std::string &src) -> ValueType {
+			::std::istringstream is(src);
+			double x; is >> x; return x;
 		}),
 
 "id"_t =
