@@ -69,52 +69,52 @@ public:
 
 inline Value operator + (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs + rhs; }
 inline Value operator - (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs - rhs; }
 inline Value operator * (const Value &lhs, const Value &rhs) {
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs * rhs; }
 inline Value operator / (const Value &lhs, const Value &rhs) {
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs / rhs; }
 inline Value operator % (const Value &lhs, const Value &rhs) {
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>() 
 			: *lhs % rhs; }
 inline Value operator | (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs | rhs; }
 inline Value operator & (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs & rhs; }
 inline Value operator ^ (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs ^ rhs; }
 inline Value operator << (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs << rhs; }
 inline Value operator >> (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs >> rhs; }
 
@@ -127,43 +127,43 @@ inline Value operator ~ (const Value &rhs) {
 
 inline Value operator == (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs == rhs; }
 inline Value operator != (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs != rhs; }
 inline Value operator > (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs > rhs; }
 inline Value operator < (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs < rhs; }
 inline Value operator >= (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs >= rhs; }
 inline Value operator <= (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs <= rhs; }
 
 inline Value operator && (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs && rhs; }
 inline Value operator || (const Value &lhs, const Value &rhs) { 
 	return dynamic_cast<const Null*>(lhs.get()) || 
-		dynamic_cast<const Null*>(lhs.get()) ? 
+		dynamic_cast<const Null*>(rhs.get()) ? 
 			std::make_unique<Null>()
 			: *lhs || rhs; }
 

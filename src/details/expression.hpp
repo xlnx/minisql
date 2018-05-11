@@ -47,6 +47,10 @@ class LiteralNode: public ExprNode
 	friend class BinaryExprNode;
 public:
 	// LiteralNode() = default;
+	LiteralNode():
+		value(std::make_unique<Null>())
+	{
+	}
 	template <typename T>
 	LiteralNode(const T &elem);
 	LiteralNode(Value &&val):

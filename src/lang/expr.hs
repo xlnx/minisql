@@ -196,6 +196,18 @@
 		>> reflect([](AstType &ast) -> ValueType {
 			return createLiteral(std::get<std::string>(ast.term(0)));
 		})
+	|"null"_t 
+		>> reflect([](AstType &ast) -> ValueType {
+			return createLiteral();
+		})
+	|"true"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return createLiteral(true);
+		})
+	|"false"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return createLiteral(false);
+		})
 	|"id"_t
 		>> reflect([](AstType &ast) -> ValueType {
 			return createColumn(std::get<std::string>(ast.term(0)));

@@ -82,7 +82,7 @@
 		}),
 
 "number"_t =
-	"\\d*\\.\\d+|\\d+\\.\\d*|\\d+|\\d+[eE]-?\\d+"_rw
+	"\\d*\\.\\d+|\\d+\\.\\d*|\\d+(?:[eE]-?\\d+)?"_rw
 		>> lexer_reflect<AstType>([](const ::std::string &src) -> ValueType {
 			::std::istringstream is(src);
 			double x; is >> x; return x;
