@@ -1,9 +1,9 @@
 #pragma once 
 
 #include <sheet.h>
-#include <details/expression.h>
+#include <details/expression.hpp>
 #include <new_parser/parser.h>
-#include <new_parser/variant/variant.h>
+#include <variant>
 #include <string>
 #include <vector>
 
@@ -13,7 +13,7 @@ namespace minisql
 class Interpreter
 {
 public:
-	using ValueType = variant<Sheet, Expr, int, std::string>;
+	using ValueType = std::variant<Sheet, Expr, int, std::string>;
 	using AstType = ast<ValueType>;
 	using CharType = char;
 	

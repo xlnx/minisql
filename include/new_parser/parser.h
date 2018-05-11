@@ -154,9 +154,9 @@ class parser
 				}
 			}
 		} while (gen_sub);
-		closures.push_back(std::move(I));
-		GOTO.push_back(std::map<long long, std::size_t>());
-		ACTION.push_back(std::map<long long, action>());
+		closures.emplace_back(std::move(I));
+		GOTO.emplace_back(std::map<long long, std::size_t>());
+		ACTION.emplace_back(std::map<long long, action>());
 	}
 public:
 	using exception_type = typename reflected_lexer<AstTy, CharTy>::exception_type;
@@ -317,9 +317,9 @@ public:
 				}
 			} while (add_sub);
 			
+			static std::size_t index = 0;
 			for (auto& param: params)
 			{
-				static std::size_t index = 0;
 				for (auto& rule: param)
 				{
 					parent_of[&rule] = param.value;
@@ -473,11 +473,11 @@ public:
 			}
 			for (auto itr = ast_stack.end() - ast_size; itr != ast_stack.end(); ++itr)
 			{
-				this_ast->sub_ast.push_back(*itr);
+				this_ast->sub_ast.emplace_back(*itr);
 			}
 			for (auto itr = term_stack.end() - term_size; itr != term_stack.end(); ++itr)
 			{
-				this_ast->sub_terms.push_back(lex.handlers[itr->id](itr->value));
+				this_ast->sub_terms.emplace_back(std::move(lex.handlers[itr->id](itr->value)));
 			}
 			for (auto& dummy: *rule)
 			{
@@ -497,15 +497,15 @@ public:
 				//std::cout << "movein" << std::endl;
 				states.push(GOTO[states.top()][sign]);
 				if (sign >= 0)
-					term_stack.push_back(tokens.front()), tokens.pop();
+					term_stack.emplace_back(tokens.front()), tokens.pop();
 				else
-					ast_stack.push_back(new_asts.top().first), new_asts.pop();
+					ast_stack.emplace_back(new_asts.top().first), new_asts.pop();
 			} break;
 			case a_hold: {
 				//std::cout << "hold" << std::endl;
 				std::size_t state = states.top();
 				states.push(0);
-				ast_stack.push_back(std::make_shared<AstTy>(
+				ast_stack.emplace_back(std::make_shared<AstTy>(
 					ast_base(ACTION[state][sign].rule->ast_data)));
 				merge(ACTION[state][sign].rule);
 			} break;
@@ -518,7 +518,7 @@ public:
 					lex.handle_exception();
 					// throw exception_type();//std::bad_cast();
 				else
-					lex.handle_exception(tokens.front());
+					lex.handle_exception(tokens.front(), "invalid syntax");
 					// throw exception_type(tokens.front());
 			}
 			case a_reduce: {

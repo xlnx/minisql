@@ -30,19 +30,20 @@ public:
 	struct exception_type
 	{
 		exception_type(const ::std::string &token, 
-				unsigned row, unsigned col, const ::std::string &line):
-			token(token), row(row), col(col), line(line)
+				unsigned row, unsigned col, const ::std::string &line, const ::std::string &extra = ""):
+			token(token), row(row), col(col), line(line), extra(extra)
 		{
 		}
 		::std::string token;
 		unsigned row, col;
 		::std::string line;
+		::std::string extra;
 		::std::string what() 
 		{
 			if (row != 0)
 			{
 				::std::ostringstream os;
-				os << ":" << row << ":" << col << ": error: unexpected \'" << token << "\'\n"
+				os << ":" << row << ":" << col << ": error: unexpected \'" << token << '\'' << (extra != "" ? " due to " : "") + extra << "\n"
 					<< line << "\n";
 				for (auto p = &line[0]; p != &line[0] + col; ++p)
 				{
@@ -122,7 +123,7 @@ public:
 			iter = &str[str.length()];
 			throw exception_type(string_type(itr, unsigned(iter_ln - itr)), 
 				lines.size(), unsigned(itr - &lines.back()[0]), 
-				string_type(lines.back(), iter_ln));
+				string_type(lines.back(), iter_ln), "unknown stray");
 			// throw std::bad_cast();
 		}
 		else
@@ -136,13 +137,13 @@ public:
 			"EOF", 0, 0, ""
 		);
 	}
-	[[noreturn]] void handle_exception(const token &tok)
+	[[noreturn]] void handle_exception(const token &tok, const std::string &extra = "")
 	{
 		auto p = lines[tok.row];
 		while (*p && *p != '\n')
 				++p;
 		throw exception_type(
-			tok.value, tok.row + 1, tok.col, string_type(lines[tok.row], p)
+			tok.value, tok.row + 1, tok.col, string_type(lines[tok.row], p), extra
 		);
 	}
 };

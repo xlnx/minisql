@@ -1,5 +1,5 @@
 #include <interpreter.h>
-#include <details/expression.h>
+#include <details/expression.hpp>
 #include <iostream>
 
 namespace minisql

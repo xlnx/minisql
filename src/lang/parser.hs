@@ -23,6 +23,9 @@ reflect([](AstType &ast){\
 // select
 #include <lang/select.hs>
 
+// select
+#include <lang/insert.hs>
+
 "query"_p = 
 	"inst_select"_p
 		>> Pass(),
@@ -34,6 +37,8 @@ reflect([](AstType &ast){\
 		>> NoReflect(),
 "instruction_body"_p = 
 	"query"_p
+		>> Pass()
+	|"inst_insert"_p
 		>> Pass(),
 "instruction"_p = 
 	"instruction_body"_p + ";"_t
