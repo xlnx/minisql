@@ -15,6 +15,8 @@
 "as"_t = "as"_riw, 
 
 "is"_t = "is"_riw, 
+"like"_t = "like"_riw, 
+"regexp"_t = "regexp"_riw, 
 
 "true"_t = "true"_riw, 
 "false"_t = "false"_riw, 

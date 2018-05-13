@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <sheet.h>
-#include <details/expression.hpp>
+#include <details/expression.h>
 #include <new_parser/parser.h>
 #include <variant>
 #include <string>
@@ -13,7 +13,13 @@ namespace minisql
 class Interpreter
 {
 public:
-	using ValueType = std::variant<Sheet, Expr, double, std::string>;
+	using ValueType = std::variant<
+		Sheet, 
+		Expr, 
+		double, 
+		std::string, 
+		std::pair<bool, IsExprType>
+	>;
 	using AstType = ast<ValueType>;
 	using CharType = char;
 	
@@ -29,9 +35,12 @@ public:
 	virtual ~Interpreter() = default;
 
 	void interpret(const std::string &sql_insts);
+	bool complete() const { return isComplete; }
 private:
 	reflected_lexer<AstType, CharType> lex;
 	parser<AstType, CharType> engine;
+
+	bool isComplete;
 };
 
 }

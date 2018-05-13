@@ -85,9 +85,10 @@
 		>> reflect([](AstType &ast) -> ValueType {
 			return createExpr(eval(0), "!=", eval(1));
 		})
-	|"expr6"_p + "is"_t + "expr7"_p
+	|"expr6"_p + "is"_t + "not|bool|null"_p
 		>> reflect([](AstType &ast) -> ValueType {
-			return createExpr(eval(0), "is", eval(1));
+			auto p = std::get<std::pair<bool, IsExprType>>(ast[1].gen());
+			return createExpr(eval(0), p.first, p.second);
 		})
 	|"expr6"_p + "like"_t + "expr7"_p
 		>> reflect([](AstType &ast) -> ValueType {
@@ -214,3 +215,36 @@
 		})
 	|"("_t + "expr"_p + ")"_t
 		>> Pass(),
+"not|bool|null"_p = 
+	"true"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(false, IsTrue);
+		})
+	|"not"_t + "true"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(true, IsTrue);
+		})
+	|"false"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(false, IsFalse);
+		})
+	|"not"_t + "false"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(true, IsFalse);
+		})
+	|"unknown"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(false, IsUnknown);
+		})
+	|"not"_t + "unknown"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(true, IsUnknown);
+		})
+	|"null"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(false, IsUnknown);
+		})
+	|"not"_t + "null"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return std::make_pair(true, IsUnknown);
+		}),

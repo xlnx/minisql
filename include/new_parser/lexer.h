@@ -30,20 +30,20 @@ public:
 	struct exception_type
 	{
 		exception_type(const ::std::string &token, 
-				unsigned row, unsigned col, const ::std::string &line, const ::std::string &extra = ""):
-			token(token), row(row), col(col), line(line), extra(extra)
+				unsigned row, unsigned col, const ::std::string &line, const ::std::string &reason = ""):
+			token(token), row(row), col(col), line(line), reason(reason)
 		{
 		}
 		::std::string token;
 		unsigned row, col;
 		::std::string line;
-		::std::string extra;
+		::std::string reason;
 		::std::string what() 
 		{
 			if (row != 0)
 			{
 				::std::ostringstream os;
-				os << ":" << row << ":" << col << ": error: unexpected \'" << token << '\'' << (extra != "" ? " due to " : "") + extra << "\n"
+				os << ":" << row << ":" << col << ": error: unexpected \'" << token << '\'' << (reason != "" ? " due to " : "") + reason << "\n"
 					<< line << "\n";
 				for (auto p = &line[0]; p != &line[0] + col; ++p)
 				{
@@ -134,16 +134,16 @@ public:
 	[[noreturn]] void handle_exception()
 	{
 		throw exception_type(
-			"EOF", 0, 0, ""
+			"EOF", 0, 0, "", "source incomplete"
 		);
 	}
-	[[noreturn]] void handle_exception(const token &tok, const std::string &extra = "")
+	[[noreturn]] void handle_exception(const token &tok, const std::string &reason = "")
 	{
 		auto p = lines[tok.row];
 		while (*p && *p != '\n')
 				++p;
 		throw exception_type(
-			tok.value, tok.row + 1, tok.col, string_type(lines[tok.row], p), extra
+			tok.value, tok.row + 1, tok.col, string_type(lines[tok.row], p), reason
 		);
 	}
 };

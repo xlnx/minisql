@@ -34,6 +34,15 @@ minisql-interpreter:7:0: error: unexpected '12' due to invalid syntax
 12 fedsfsdr dwe rfew gre wra gafd sd
 ^~
 
+>>> select 1 + 2 * 1e7 & 2e3 + "123adasd" or 1;
+get expr: true
+
+>>> select * from w where "asdasdasd" like "%123%";
+get expr: false
+
+>>> select * from w where "asdasdasd" like "%sda%";
+get expr: true
+
 ```
 
 # build

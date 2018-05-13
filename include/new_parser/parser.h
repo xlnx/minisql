@@ -6,17 +6,6 @@
 #include <queue>
 #include <vector>
 #include <stack>
-//#include <iostream>
-
-// template <typename lexer_type>
-// struct parser_exception: public std::logic_error {
-// 	parser_exception():
-// 		std::logic_error("unexpected \'eof\'")
-// 	{}
-// 	parser_exception(const typename lexer_type::value_type& t):
-// 		std::logic_error("unexpected \'" + t.value + "\'")
-// 	{}
-// };
 
 template <class AstTy, class CharTy = char>
 class parser

@@ -1,5 +1,5 @@
 #include <interpreter.h>
-#include <details/expression.hpp>
+#include <details/expression.h>
 #include <iostream>
 
 namespace minisql
@@ -31,10 +31,14 @@ void Interpreter::interpret(const std::string &sql_insts)
 	try
 	{
 		engine.parse(sql_insts.c_str());
+		isComplete = true;
 	}
 	catch (parser<AstType>::exception_type e)
 	{
-		std::cout << "minisql-interpreter" << e.what() << std::endl;
+		if (isComplete = e.reason != "source incomplete")
+		{
+			std::cout << "minisql-interpreter" << e.what() << std::endl;
+		}
 	}
 }
 	

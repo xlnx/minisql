@@ -7,11 +7,19 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	minisql::Interpreter engine;
-	string l;
-	while (cout << ">>> ", getline(cin, l))
+	string prev = "", l;
+	while (cout << (prev == "" ? ">>> " : " -> "), getline(cin, l))
 	{
-		engine.interpret(l);
-		cout << endl;
+		engine.interpret(prev + l);
+		if (engine.complete())
+		{
+			prev = "";
+			cout << endl;
+		}
+		else
+		{
+			prev += l + "\n";
+		}
 	}
 	return 0;
 }
