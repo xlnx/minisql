@@ -1,4 +1,4 @@
-#include <details/expression.h>
+#include <interpreter/expression.h>
 #include <regex>
 
 namespace minisql

@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <details/type.h>
+#include <interpreter/type.h>
 #include <variant>
 #include <iostream>
 #include <sstream>

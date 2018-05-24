@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <sheet.h>
-#include <details/expression.h>
+#include <interpreter/expression.h>
 #include <new_parser/parser.h>
 #include <variant>
 #include <string>

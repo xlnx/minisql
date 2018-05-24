@@ -1,4 +1,4 @@
-#include <details/type.h>
+#include <interpreter/type.h>
 
 namespace minisql
 {

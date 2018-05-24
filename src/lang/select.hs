@@ -80,7 +80,7 @@
 		>> Expand(),
 
 "inst_select"_p =
-	"select"_t + "select_exprs_unqualified"_p
+	"select"_t + "select_exprs"_p
 		>> Expand()
 	|"select"_t + "select_exprs_unqualified"_p + "from"_t + "table_references"_p
 		>> Expand()
