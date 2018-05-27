@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="头文件\InformationTransform">
+      <UniqueIdentifier>{f5f76180-9cae-440d-b0b0-a526491694b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\InformationTransform\Row">
+      <UniqueIdentifier>{8fac995d-2fab-40bd-9676-9065ae3cc7e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\InformationTransform">
+      <UniqueIdentifier>{0a98a8dd-c86a-473e-a243-d219ea5fa459}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\InformationTransform\Row">
+      <UniqueIdentifier>{ecb5cfa6-d808-4cf3-9c7a-04aaff906468}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="头文件\InformationTransform\ReturnInformation">
+      <UniqueIdentifier>{f56e57f8-f45c-41ea-8bf4-31b451cc9ee2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="源文件\InformationTransform\ReturnInformation">
+      <UniqueIdentifier>{3e078e0a-b213-4137-8ff1-69e6f71cd84d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AtomicData.h">
+      <Filter>头文件\InformationTransform\Row</Filter>
+    </ClInclude>
+    <ClInclude Include="Row.h">
+      <Filter>头文件\InformationTransform\Row</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Condition.h">
+      <Filter>头文件\InformationTransform</Filter>
+    </ClInclude>
+    <ClInclude Include="Range.h">
+      <Filter>头文件\InformationTransform</Filter>
+    </ClInclude>
+    <ClInclude Include="Chart.h">
+      <Filter>头文件\InformationTransform</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Condition.cpp">
+      <Filter>源文件\InformationTransform</Filter>
+    </ClCompile>
+    <ClCompile Include="IndexManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="AtomicData.cpp">
+      <Filter>源文件\InformationTransform\Row</Filter>
+    </ClCompile>
+    <ClCompile Include="Row.cpp">
+      <Filter>源文件\InformationTransform\Row</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
