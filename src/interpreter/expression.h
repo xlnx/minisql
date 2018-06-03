@@ -43,6 +43,29 @@ public:
 	virtual void write(std::ostream &os) const = 0;
 };
 
+template <typename T>
+struct LiteralType
+{
+};
+
+template <>
+struct LiteralType<std::string>
+{
+	using type = String;
+};
+
+template <>
+struct LiteralType<double>
+{
+	using type = Number;
+};
+
+template <>
+struct LiteralType<bool>
+{
+	using type = Bool;
+};
+
 class LiteralNode: public ExprNode
 {
 	friend class UnaryExprNode;
@@ -55,7 +78,10 @@ public:
 	{
 	}
 	template <typename T>
-	LiteralNode(const T &elem);
+	LiteralNode(const T &elem):
+		value(std::make_unique<typename LiteralType<T>::type>(elem))
+	{
+	}
 	LiteralNode(Value &&val):
 		value(std::move(val))
 	{
@@ -72,22 +98,6 @@ template <typename ...Args>
 Expr createLiteral(Args &&...args)
 {
 	return std::make_unique<LiteralNode>(std::forward<Args>(args)...);
-}
-
-template <>
-inline LiteralNode::LiteralNode<std::string>(const std::string &elem):
-	value(std::make_unique<String>(elem))
-{
-}
-template <>
-inline LiteralNode::LiteralNode<double>(const double &elem):
-	value(std::make_unique<Number>(elem))
-{
-}
-template <>
-inline LiteralNode::LiteralNode<bool>(const bool &elem):
-	value(std::make_unique<Bool>(elem))
-{
 }
 
 class ColumnNode: public ExprNode

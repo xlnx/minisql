@@ -90,8 +90,8 @@ constexpr inline SerializerLookup genSerializer()
 	if constexpr (std::is_pod<T>::value)
 	{
 		return {
-			SerializerPod<T>::serialize,
-			SerializerPod<T>::deserialize,
+			SerializerPod<T, void>::serialize,
+			SerializerPod<T, void>::deserialize,
 			constructPod,
 			destroyPod,
 			sizeof(T)

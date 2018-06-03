@@ -40,8 +40,8 @@ namespace __buffer_property__shared
 	using List = std::vector<std::pair<__property_traits::SerializerLookup, decltype(""-"")>>;
 }
 
-template <typename T, typename = typename 
-	std::enable_if<__property_traits::isValidPropertyType<T>()>::type>
+template <typename T, typename = void>//typename 
+	//std::enable_if<__property_traits::isValidPropertyType<T>()>::type>
 class Property final
 {
 	friend class Buffer;

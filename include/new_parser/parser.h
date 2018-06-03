@@ -54,7 +54,7 @@ class parser
 				bool is_empty = true;
 				for (auto& elem: rule)
 				{
-					if (!(is_empty &= FIRST[elem.value].count(empty_elem)))
+					if (!(is_empty &= (bool)FIRST[elem.value].count(empty_elem)))
 						break;
 				}
 				if (is_empty && rule[0].value != value)

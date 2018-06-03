@@ -158,19 +158,19 @@ public:
 	Value operator / (const Number &other) const
 		{ return std::make_unique<Number>(value / other.value); }
 	Value operator % (const Number &other) const
-		{ return std::make_unique<Number>((long long)value % (long long)other.value); }
+		{ return std::make_unique<Number>(double((long long)value % (long long)other.value)); }
 	Value operator | (const Number &other) const
-		{ return std::make_unique<Number>((long long)value | (long long)other.value); }
+		{ return std::make_unique<Number>(double((long long)value | (long long)other.value)); }
 	Value operator & (const Number &other) const
-		{ return std::make_unique<Number>((long long)value & (long long)other.value); }
+		{ return std::make_unique<Number>(double((long long)value & (long long)other.value)); }
 	Value operator ^ (const Number &other) const
-		{ return std::make_unique<Number>((long long)value ^ (long long)other.value); }
+		{ return std::make_unique<Number>(double((long long)value ^ (long long)other.value)); }
 	Value operator << (const Number &other) const
-		{ return std::make_unique<Number>((long long)value << (long long)other.value); }
+		{ return std::make_unique<Number>(double((long long)value << (long long)other.value)); }
 	Value operator >> (const Number &other) const
-		{ return std::make_unique<Number>((long long)value >> (long long)other.value); }
+		{ return std::make_unique<Number>(double((long long)value >> (long long)other.value)); }
 	Value operator ~ () const
-		{ return std::make_unique<Number>(~(long long)value); }
+		{ return std::make_unique<Number>(double(~(long long)value)); }
 	Value operator ! () const
 		{ return std::make_unique<Number>(!value); }
 

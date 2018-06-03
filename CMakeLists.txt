@@ -7,7 +7,10 @@ include_directories(
 	"${CMAKE_SOURCE_DIR}/src"
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-parentheses -Wno-noexcept-type -Wno-unused-variable -static-libgcc -static-libstdc++")
+if (MSVC)
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-parentheses -Wno-noexcept-type -Wno-unused-variable -static-libgcc -static-libstdc++")
+endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -DDEBUG -g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")

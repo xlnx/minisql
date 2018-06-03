@@ -48,7 +48,7 @@
 "expr5"_p = 
 	"expr5"_p + ""_t + "expr6"_p
 		>> reflect([](AstType &ast) -> ValueType {
-			
+			return ValueType();
 		})
 	|"expr6"_p
 		>> Pass(),

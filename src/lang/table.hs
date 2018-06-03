@@ -1,11 +1,11 @@
 "table_references"_p = 
 	"escaped_table_reference"_p + ","_t + "table_references"_p
 		>> reflect([](AstType &ast) -> ValueType {
-
+			return ValueType();
 		})
 	|"escaped_table_reference"_p
 		>> reflect([](AstType &ast) -> ValueType {
-
+			return ValueType();
 		}),
 "escaped_table_reference"_p =
 	"table_reference"_p
@@ -18,7 +18,7 @@
 "table_factor"_p =
 	"id"_t + "alias_any"_p 
 		>> reflect([](AstType &ast) -> ValueType {
-
+			return ValueType();
 		})
 	|"("_t + "query"_p + ")"_t + "alias"_p
 		>> Pass()
