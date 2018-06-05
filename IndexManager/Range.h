@@ -4,9 +4,5 @@ struct Range {
 	Row LeftBoundIndex;
 	Row RightBoundIndex;
 
-	bool leftInfinite;
-	bool includeLeft;
-	
-	bool rightInfinite;
-	bool includeRight;
+	short Infinite;//00->(,) 01->(,] 10->[,) 11[]
 };

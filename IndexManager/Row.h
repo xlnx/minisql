@@ -2,10 +2,11 @@
 #include"AtomicData.h"
 class Row {
 public:
-	unsigned int length;
-	AtomicData**atomicDataArray;
 
-	Row();
-	Row(unsigned int length);
-	~Row();
+	//identicalArray*____array;
+	attribute[] attrs;
+	//attrrs.size
+	// attrs[i]  attrs[1] -> float 
+		// | int* | float* | char(30) |
+
 };

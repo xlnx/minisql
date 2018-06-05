@@ -115,6 +115,7 @@
     <ClInclude Include="AtomicData.h" />
     <ClInclude Include="Condition.h" />
     <ClInclude Include="IndexManager.h" />
+    <ClInclude Include="Node.h" />
     <ClInclude Include="Range.h" />
     <ClInclude Include="Row.h" />
   </ItemGroup>

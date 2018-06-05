@@ -51,6 +51,9 @@
     <ClInclude Include="Chart.h">
       <Filter>头文件\InformationTransform</Filter>
     </ClInclude>
+    <ClInclude Include="Node.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
