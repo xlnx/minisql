@@ -86,13 +86,13 @@ class BufferManager final
 {
 	static std::vector<File*> files;
 	static heap<Block*> cachedBlocks;
-	static volatile int onStartup;
 	static Pointer offindex;
 	static SizeType erased;
 private:
 	static void writeHeader();
 	static void writeIndex();
 public:
+	BufferManager();
 	~BufferManager();
 
 	static BufferType registerBufferType(const std::vector<BufferElem> &elems);

@@ -50,35 +50,6 @@ static std::fstream &icursor()
 	return cur;
 }
 
-volatile int BufferManager::onStartup = [&]()
-{
-	auto &cursor = icursor();
-	BufferManagerInfo info;
-	cursor.seekg(- sizeof(BufferManagerInfo), std::ios::end);
-	cursor.read(reinterpret_cast<char*>(&info), sizeof(BufferManagerInfo));
-	erased = info.erased;
-	BufferTypeInfo bi;
-	std::vector<BufferElem> elems;
-	for (int i = 1; i <= info.numBufferTypes; ++i)
-	{
-		cursor.seekg(- i * sizeof(BufferTypeInfo) - sizeof(BufferManagerInfo), std::ios::end);
-		offindex = cursor.tellg();
-		cursor.read(reinterpret_cast<char*>(&bi), sizeof(BufferTypeInfo));
-		if (bi.next == SQL_NAP)
-		{
-			cursor.seekg(bi.offset, std::ios::beg);
-			elems.resize(bi.numTypes);
-			cursor.read(reinterpret_cast<char*>(&elems[0]), sizeof(BufferElem) * bi.numTypes);
-			files.emplace_back(new File(elems, bi.offset, i - 1));
-		}
-		else
-		{
-			files.emplace_back(new File(bi.next, bi.offset, i - 1));
-		}
-	}
-	return 0;
-} ();
-
 // File
 struct FileHeader
 {
@@ -291,6 +262,35 @@ char *BufferManager::get(BufferType scope, DataIndex index)
 	auto &block = file.blocks[blockid];
 	ensureCached(block);
 	return block.data + file.size * id;
+}
+
+BufferManager::BufferManager()
+{
+	auto &cursor = icursor();
+	BufferManagerInfo info;
+	cursor.seekg(- sizeof(BufferManagerInfo), std::ios::end);
+	cursor.read(reinterpret_cast<char*>(&info), sizeof(BufferManagerInfo));
+	erased = info.erased;
+	BufferTypeInfo bi;
+	std::vector<BufferElem> elems;
+	for (int i = 1; i <= info.numBufferTypes; ++i)
+	{
+		cursor.seekg(- i * sizeof(BufferTypeInfo) - sizeof(BufferManagerInfo), std::ios::end);
+		offindex = cursor.tellg();
+		cursor.read(reinterpret_cast<char*>(&bi), sizeof(BufferTypeInfo));
+		if (bi.next == SQL_NAP)
+		{
+			cursor.seekg(bi.offset, std::ios::beg);
+			elems.resize(bi.numTypes);
+			cursor.read(reinterpret_cast<char*>(&elems[0]), sizeof(BufferElem) * bi.numTypes);
+			files.emplace_back(new File(elems, bi.offset, i - 1));
+		}
+		else
+		{
+			files.emplace_back(new File(bi.next, bi.offset, i - 1));
+		}
+	}
+	return 0;
 }
 
 BufferManager::~BufferManager()
