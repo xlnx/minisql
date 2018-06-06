@@ -1,39 +1,17 @@
 #pragma once
 
-// #include "buffer/io.h"
+#include <buffer/buffer_def.h>
+// #include <buffer/item.h>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <map>
-#include <debug/debug.hpp>
-
-#define BLOCK_SIZE (1024 * 4)
-
-#define SQL_INT 0x100000
-#define SQL_CHAR(N) (0x200000 | N)
-#define SQL_FLOAT 0x400000
-#define SQL_POINTER 0x800000
-#define SQL_NONE_TYPE 0x0
-
-#define MAX_CACHE_BLOCK_COUNT (1024) // 4kb * 1024 = 4 MB
-
-#define SQL_NULL (-1)
-#define SQL_NAP (-2)
 
 namespace minisql
 {
 
 namespace __buffer
 {
-
-using BufferType = unsigned short;
-using BufferElem = unsigned;
-using Pointer = int;
-using SizeType = int;
-using DataIndex = unsigned int;
-
-template <typename ...Args>
-using heap = std::vector<Args...>;
 
 class File;
 
@@ -61,9 +39,11 @@ class File final
 	std::fstream fs;
 
 public:
-	File(const std::vector<BufferElem> &elems, Pointer offset, SizeType id);
+	File(const ItemType &elems, Pointer offset, SizeType id);
 
 	File(Pointer next, Pointer offset, SizeType id);
+
+	~File();
 
 	std::fstream &cursor() { return fs; }
 
@@ -72,11 +52,13 @@ public:
 	void writeHeader();
 public:
 	SizeType size = 0;
-	std::vector<BufferElem> elems;
+	ItemType elems;
+	std::vector<SizeType> attrOffset;
+	// std::vector<void> attrDecoder;
 	Pointer next = SQL_NAP;
 	Pointer offset;
 
-	std::vector<Block> blocks;
+	std::vector<Block*> blocks;
 	SizeType numDatas;
 	SizeType blockCapacity;
 	SizeType erased;
@@ -88,22 +70,30 @@ class BufferManager final
 	static heap<Block*> cachedBlocks;
 	static Pointer offindex;
 	static SizeType erased;
+
+	friend class Attribute;
+	friend class Item;
 private:
 	static void writeHeader();
 	static void writeIndex();
+
+	static void ensureCached(Block &block);
+	static std::string getTypeName(BufferElem);
 public:
 	BufferManager();
 	~BufferManager();
 
-	static BufferType registerBufferType(const std::vector<BufferElem> &elems);
-
-	static void ensureCached(Block &block);
+	static BufferType registerBufferType(const ItemType &elems);
 
 	// static const BufferElemInfo &getElemInfo(BufferType type) { return files[type]; }
 
 	static DataIndex insert(BufferType scope, const char *data);
 
-	static char *get(BufferType scope, DataIndex index);
+	static char *read(BufferType scope, DataIndex index);
+
+	static void write(BufferType scope, DataIndex index, const char *data);
+
+	static std::string demangle(BufferType type);
 };
 
 // query -> block=2/bid=2 -> file -> 

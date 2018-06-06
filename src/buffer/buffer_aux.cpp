@@ -41,7 +41,7 @@ static std::fstream &icursor()
 			BufferManagerInfo info;
 			info.numBufferTypes = 0;
 			info.erased = SQL_NULL;
-			cur.write(reinterpret_cast<const char*>(&info), sizeof(BufferManagerInfo));
+			cur.write(reinterpret_cast<const char*>(&info), SizeOf(BufferManagerInfo));
 			cur.close();
 			cur.open(SE_FNAME(""), std::ios::binary | std::ios::in | std::ios::out);
 		}
@@ -58,7 +58,7 @@ struct FileHeader
 	Pointer erased;
 };
 
-static open(std::fstream &fs, SizeType id)
+static void open(std::fstream &fs, SizeType id)
 {
 	std::ostringstream os;
 	os << std::dec << id;
@@ -70,7 +70,7 @@ static open(std::fstream &fs, SizeType id)
 		h.numBlocks = 0;
 		h.numDatas = 0;
 		h.erased = SQL_NULL;
-		fs.write(reinterpret_cast<const char*>(&h), sizeof(FileHeader));
+		fs.write(reinterpret_cast<const char*>(&h), SizeOf(FileHeader));
 		fs.close();
 		fs.open(SE_FNAME(os.str()), std::ios::binary | std::ios::in | std::ios::out);
 	}
@@ -81,29 +81,30 @@ File::File(const std::vector<BufferElem> &elems, Pointer offset, SizeType id):
 {
 	for (auto e: elems)
 	{
+		attrOffset.emplace_back(size);
 		switch ((e & 0xff0000) >> 16)
 		{
 			case 0x10: {	// SQL_INT
-				size += sizeof(int); 
+				size += SizeOf(int); 
 			} break;
 			case 0x20: {	// SQL_CHAR(N)
 				auto n = e & 0x00ffff;
 				size += n;
 			} break;
 			case 0x80: {	// SQL_POINTER
-				size += sizeof(int);
+				size += SizeOf(int);
 			} break;
 		}
 	}
 	open(fs, id);
 	FileHeader h;
-	fs.seekg(-sizeof(FileHeader), std::ios::end);
-	fs.read(reinterpret_cast<char*>(&h), sizeof(FileHeader));
+	fs.seekg(- SizeOf(FileHeader), std::ios::end);
+	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
 	for (auto i = 0; i != h.numBlocks; ++i)
 	{
-		blocks.emplace_back(*this, BLOCK_SIZE * i);
+		blocks.emplace_back(new Block(*this, BLOCK_SIZE * i));
 	}
 	blockCapacity = BLOCK_SIZE / size;
 }
@@ -113,15 +114,23 @@ File::File(Pointer next, Pointer offset, SizeType id):
 {
 	open(fs, id);
 	FileHeader h;
-	fs.seekg(-sizeof(FileHeader), std::ios::beg);
-	fs.read(reinterpret_cast<char*>(&h), sizeof(FileHeader));
+	fs.seekg(- SizeOf(FileHeader), std::ios::beg);
+	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
 	for (auto i = 0; i != h.numBlocks; ++i)
 	{
-		blocks.emplace_back(*this, BLOCK_SIZE * i);
+		blocks.emplace_back(new Block(*this, BLOCK_SIZE * i));
 	}
 	blockCapacity = BLOCK_SIZE / size;
+}
+
+File::~File()
+{
+	for (auto b: blocks)
+	{
+		delete b;
+	}
 }
 
 void File::writeHeader()
@@ -131,16 +140,16 @@ void File::writeHeader()
 	h.numDatas = numDatas;
 	h.numBlocks = blocks.size();
 	fs.seekp(BLOCK_SIZE * h.numBlocks, std::ios::beg);
-	debug::print::state(fs);
-	fs.write(reinterpret_cast<const char*>(&h), sizeof(FileHeader));
-	debug::hl([&]() {
-		debug::print::state(fs);
-	});
+	// debug::print::state(fs);
+	fs.write(reinterpret_cast<const char*>(&h), SizeOf(FileHeader));
+	// debug::hl([&]() {
+	// 	debug::print::state(fs);
+	// });
 }
 
 void File::addBlock()
 {
-	blocks.emplace_back(*this, BLOCK_SIZE * blocks.size());
+	blocks.emplace_back(new Block(*this, BLOCK_SIZE * blocks.size()));
 	writeHeader();
 }
 
@@ -152,7 +161,7 @@ Block::Block(File &f, Pointer offset):
 
 void Block::cache()
 {
-	debug::print::state(ffile.cursor());
+	// debug::print::state(ffile.cursor());
 	ffile.cursor().seekg(offset, std::ios::beg);
 	// BufferManager::getElemInfo(ffile.elemType()).size() * 
 	data = new char [BLOCK_SIZE]; ffile.cursor().read(data, BLOCK_SIZE);
@@ -174,15 +183,15 @@ void Block::release()
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems)
 {
 	files.emplace_back(new File(elems, offindex, files.size()));
-	offindex += sizeof(BufferElem) * elems.size();
+	offindex += SizeOf(BufferElem) * elems.size();
 	auto &cursor = icursor();
 	auto &file = *files.back();
 	cursor.seekp(file.offset, std::ios::beg);
 	// debug::print::ln(file.offset, cursor.tellg(), cursor.tellp());
 	// debug::print::mem(*reinterpret_cast<BufferElem(*)[4]>(&file.elems[0]));
-	cursor.write(reinterpret_cast<const char*>(&file.elems[0]), sizeof(BufferElem) * file.elems.size());
+	cursor.write(reinterpret_cast<const char*>(&file.elems[0]), SizeOf(BufferElem) * file.elems.size());
 	writeIndex();
-	return files.size() - 1;
+	return BufferType(files.size() - 1);
 }
 
 void BufferManager::ensureCached(Block &block)
@@ -205,8 +214,8 @@ void BufferManager::writeHeader()
 	info.numBufferTypes = files.size();
 	info.erased = erased;
 	auto &cursor = icursor();
-	cursor.seekp(offindex + files.size() * sizeof(BufferTypeInfo), std::ios::beg);
-	cursor.write(reinterpret_cast<const char*>(&info), sizeof(BufferManagerInfo));
+	cursor.seekp(offindex + files.size() * SizeOf(BufferTypeInfo), std::ios::beg);
+	cursor.write(reinterpret_cast<const char*>(&info), SizeOf(BufferManagerInfo));
 }
 
 void BufferManager::writeIndex()
@@ -219,7 +228,7 @@ void BufferManager::writeIndex()
 		info.next = (*iter)->next;
 		info.numTypes = (*iter)->elems.size();
 		info.offset = (*iter)->offset;
-		cursor.write(reinterpret_cast<const char*>(&info), sizeof(BufferTypeInfo));
+		cursor.write(reinterpret_cast<const char*>(&info), SizeOf(BufferTypeInfo));
 	}
 	writeHeader();
 }
@@ -227,62 +236,101 @@ void BufferManager::writeIndex()
 DataIndex BufferManager::insert(BufferType scope, const char *data)
 {
 	auto &file = *files[scope];
-	auto id = file.numDatas % file.blockCapacity;
+	auto index = file.numDatas;
+	auto id = index % file.blockCapacity;
 	Block *block;
 	if (file.erased != SQL_NULL)
 	{
-		block = &file.blocks[file.erased / file.blockCapacity];
+		index = file.erased;
+		block = file.blocks[index / file.blockCapacity];
 		id = file.erased % file.blockCapacity;
 		ensureCached(*block);
-		memcpy(&file.erased, block->data + file.size * id, sizeof(SizeType));
+		memcpy(&file.erased, block->data + file.size * id, SizeOf(SizeType));
 	}
 	else
 	{
-		id = file.numDatas % file.blockCapacity;
-		if (id == 0)
-		{
-			file.addBlock();
-		}
-		block = &file.blocks.back();
+		if (id == 0) file.addBlock();
+		block = file.blocks.back();
 		ensureCached(*block);
+		file.numDatas++;
 	}
 	memcpy(block->data + file.size * id, data, file.size);
 	// debug::print::ln(block);
 	block->isModified = true;
-	file.numDatas++;
 	file.writeHeader();
-	debug::print::state(file.cursor());
+	// debug::print::state(file.cursor());
+	return index;
 }
 
-char *BufferManager::get(BufferType scope, DataIndex index)
+char *BufferManager::read(BufferType scope, DataIndex index)
 {
 	auto &file = *files[scope];
 	auto blockid = index / file.blockCapacity;
 	auto id = index % file.blockCapacity;
-	auto &block = file.blocks[blockid];
-	ensureCached(block);
-	return block.data + file.size * id;
+	auto block = file.blocks[blockid];
+	ensureCached(*block);
+	return block->data + file.size * id;
+}
+
+void BufferManager::write(BufferType scope, DataIndex index, const char *data)
+{
+	auto &file = *files[scope];
+	auto blockid = index / file.blockCapacity;
+	auto id = index % file.blockCapacity;
+	auto block = file.blocks[blockid];
+	ensureCached(*block);
+	memcpy(block->data + file.size * id, data, file.size);
+	block->isModified = true;
+}
+
+std::string BufferManager::getTypeName(BufferElem type)
+{
+	std::ostringstream os;
+	switch ((type & 0xff0000) >> 16)
+	{
+		case 0x10: {	// SQL_INT
+			os << "int";
+		} break;
+		case 0x20: {	// SQL_CHAR(N)
+			os << "char(" << (type & 0x00ffff) << ")";
+		} break;
+		case 0x80: {	// SQL_POINTER
+			os << "object";
+		} break;
+	}
+	return os.str();
+}
+
+std::string BufferManager::demangle(BufferType type)
+{
+	auto &elems = files[type]->elems;
+	std::string str = getTypeName(elems[0]);
+	for (auto i = 1; i < elems.size(); ++i) 
+	{
+		str += "," + getTypeName(elems[i]);
+	}
+	return str;
 }
 
 BufferManager::BufferManager()
 {
 	auto &cursor = icursor();
 	BufferManagerInfo info;
-	cursor.seekg(- sizeof(BufferManagerInfo), std::ios::end);
-	cursor.read(reinterpret_cast<char*>(&info), sizeof(BufferManagerInfo));
+	cursor.seekg(- SizeOf(BufferManagerInfo), std::ios::end);
+	cursor.read(reinterpret_cast<char*>(&info), SizeOf(BufferManagerInfo));
 	erased = info.erased;
 	BufferTypeInfo bi;
 	std::vector<BufferElem> elems;
 	for (int i = 1; i <= info.numBufferTypes; ++i)
 	{
-		cursor.seekg(- i * sizeof(BufferTypeInfo) - sizeof(BufferManagerInfo), std::ios::end);
-		offindex = cursor.tellg();
-		cursor.read(reinterpret_cast<char*>(&bi), sizeof(BufferTypeInfo));
+		cursor.seekg(- i * SizeOf(BufferTypeInfo) - SizeOf(BufferManagerInfo), std::ios::end);
+		offindex = Pointer(cursor.tellg());
+		cursor.read(reinterpret_cast<char*>(&bi), SizeOf(BufferTypeInfo));
 		if (bi.next == SQL_NAP)
 		{
 			cursor.seekg(bi.offset, std::ios::beg);
 			elems.resize(bi.numTypes);
-			cursor.read(reinterpret_cast<char*>(&elems[0]), sizeof(BufferElem) * bi.numTypes);
+			cursor.read(reinterpret_cast<char*>(&elems[0]), SizeOf(BufferElem) * bi.numTypes);
 			files.emplace_back(new File(elems, bi.offset, i - 1));
 		}
 		else
@@ -290,14 +338,13 @@ BufferManager::BufferManager()
 			files.emplace_back(new File(bi.next, bi.offset, i - 1));
 		}
 	}
-	return 0;
 }
 
 BufferManager::~BufferManager()
 {
 	for (auto block: cachedBlocks)
 	{
-		debug::print::ln(block);
+		// debug::print::ln(block);
 		block->release();
 	}
 	for (auto f: files)
