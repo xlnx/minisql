@@ -1,9 +1,60 @@
 #include "buffer/buffer_aux.h"
 #include <sstream>
 #include <iostream>
+#include <cstring>
 
 namespace minisql
 {
+
+namespace __buffer
+{
+
+bool Attribute::operator < (const Attribute &) const
+{
+	return false;
+}
+bool Attribute::operator <= (const Attribute &) const
+{
+	return false;
+}
+bool Attribute::operator > (const Attribute &) const
+{
+	return false;
+}
+bool Attribute::operator >= (const Attribute &) const
+{
+	return false;
+}
+bool Attribute::operator == (const Attribute &) const
+{
+	return false;
+}
+bool Attribute::operator != (const Attribute &) const
+{
+	return false;
+}
+
+std::string Attribute::typeName() const
+{
+	return BufferManager::getTypeName(type);
+}
+
+// Item
+Attribute Item::operator [] (std::size_t attrno)
+{
+	auto &file = *BufferManager::files[index];
+	return Attribute(
+		file.elems[attrno], 
+		BufferManager::read(type, index) + file.attrOffset[attrno]
+	);
+}
+
+std::string Item::typeName() const
+{
+	return BufferManager::demangle(type);
+}
+
+}
 
 namespace __buffer
 {
@@ -76,8 +127,8 @@ static void open(std::fstream &fs, SizeType id)
 	}
 }
 
-File::File(const std::vector<BufferElem> &elems, Pointer offset, SizeType id):
-	elems(elems), offset(offset)
+File::File(BufferType type, const std::vector<BufferElem> &elems, Pointer offset):
+	elems(elems), offset(offset), type(type)
 {
 	for (auto e: elems)
 	{
@@ -96,23 +147,30 @@ File::File(const std::vector<BufferElem> &elems, Pointer offset, SizeType id):
 			} break;
 		}
 	}
-	open(fs, id);
+	blockCapacity = BLOCK_SIZE / size;
+	open(fs, type);
 	FileHeader h;
 	fs.seekg(- SizeOf(FileHeader), std::ios::end);
 	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
+	SizeType idx = 0;
 	for (auto i = 0; i != h.numBlocks; ++i)
 	{
+		auto ncap = 0;
 		blocks.emplace_back(new Block(*this, BLOCK_SIZE * i));
+		while (idx < h.numDatas && ncap++ < blockCapacity)
+		{
+			items.emplace_back(type, idx++);
+		}
 	}
-	blockCapacity = BLOCK_SIZE / size;
 }
 
-File::File(Pointer next, Pointer offset, SizeType id):
-	next(next), offset(offset)
+File::File(BufferType type, Pointer next, Pointer offset):
+	next(next), offset(offset), type(type)
 {
-	open(fs, id);
+	blockCapacity = BLOCK_SIZE / size;
+	open(fs, type);
 	FileHeader h;
 	fs.seekg(- SizeOf(FileHeader), std::ios::beg);
 	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
@@ -122,7 +180,6 @@ File::File(Pointer next, Pointer offset, SizeType id):
 	{
 		blocks.emplace_back(new Block(*this, BLOCK_SIZE * i));
 	}
-	blockCapacity = BLOCK_SIZE / size;
 }
 
 File::~File()
@@ -182,7 +239,7 @@ void Block::release()
 // BufferManager
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems)
 {
-	files.emplace_back(new File(elems, offindex, files.size()));
+	files.emplace_back(new File(BufferType(files.size()), elems, offindex));
 	offindex += SizeOf(BufferElem) * elems.size();
 	auto &cursor = icursor();
 	auto &file = *files.back();
@@ -292,7 +349,7 @@ std::string BufferManager::getTypeName(BufferElem type)
 			os << "int";
 		} break;
 		case 0x20: {	// SQL_CHAR(N)
-			os << "char(" << (type & 0x00ffff) << ")";
+			os << "char(" << std::dec << (type & 0x00ffff) << ")";
 		} break;
 		case 0x80: {	// SQL_POINTER
 			os << "object";
@@ -305,11 +362,24 @@ std::string BufferManager::demangle(BufferType type)
 {
 	auto &elems = files[type]->elems;
 	std::string str = getTypeName(elems[0]);
-	for (auto i = 1; i < elems.size(); ++i) 
+	for (auto i = 1u; i < elems.size(); ++i) 
 	{
 		str += "," + getTypeName(elems[i]);
 	}
 	return str;
+}
+
+// return Item(type, index);
+
+Item BufferManager::insertItem(BufferType type, const char *data)
+{
+	auto index = insert(type, data);
+	return Item(type, index);
+}
+
+void BufferManager::writeItem(Item item, const char * data)
+{
+	write(item.type, item.index, data);
 }
 
 BufferManager::BufferManager()
@@ -331,11 +401,11 @@ BufferManager::BufferManager()
 			cursor.seekg(bi.offset, std::ios::beg);
 			elems.resize(bi.numTypes);
 			cursor.read(reinterpret_cast<char*>(&elems[0]), SizeOf(BufferElem) * bi.numTypes);
-			files.emplace_back(new File(elems, bi.offset, i - 1));
+			files.emplace_back(new File(i - 1, elems, bi.offset));
 		}
 		else
 		{
-			files.emplace_back(new File(bi.next, bi.offset, i - 1));
+			files.emplace_back(new File(i - 1, bi.next, bi.offset));
 		}
 	}
 }

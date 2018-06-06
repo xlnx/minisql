@@ -2,7 +2,6 @@
 // #include <buffer/buffer.h>
 #include <debug/debug.hpp>
 #include <buffer/buffer_aux.h>
-#include <buffer/item.h>
 #include <iostream>
 #include <string>
 
@@ -45,9 +44,9 @@ int main(int argc, char **argv)
 		// BufferManager::write(0, 0, reinterpret_cast<const char*>(&test));
 		// print::mem(*reinterpret_cast<char(*)[sizeof(test)]>(BufferManager::read(0, 0)));
 
-		Item item(0);
-		debug::print::ln(item.typeName());
-		debug::print::ln(item[0].typeName());
+		// Item item(0);
+		// debug::print::ln(item.typeName());
+		// debug::print::ln(item[0].typeName());
 	// });
 	return 0;
 }
