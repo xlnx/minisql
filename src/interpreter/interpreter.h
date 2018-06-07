@@ -2,6 +2,7 @@
 
 #include <sheet.h>
 #include <interpreter/expression.h>
+#include <interpreter/interpreter_aux.h>
 #include <new_parser/parser.h>
 #include <variant>
 #include <string>
@@ -18,6 +19,15 @@ public:
 		Expr, 
 		double, 
 		std::string, 
+		Flag,
+		Value,
+		BufferElem,
+		TableAttribute,
+		std::vector<Value>,
+		std::vector<std::vector<Value>>,
+		std::vector<std::string>,
+		std::map<std::string, TableAttribute>,
+		std::pair<std::string, TableAttribute>,
 		std::pair<bool, IsExprType>
 	>;
 	using AstType = ast<ValueType>;

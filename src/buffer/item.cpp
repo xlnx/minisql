@@ -20,9 +20,41 @@ std::string Attribute::typeName() const
 	return BufferManager::getTypeName(BufferManager::files[item.type]->elems[index]);
 }
 
+std::ostream &operator << (std::ostream &os, const Attribute &attr)
+{
+	os << "attr[" << attr.item.type << ":" << attr.item.index << ":" << attr.index << "]{" << attr.typeName() << ":";
+	if (auto str = std::get_if<std::string>(&attr.value))
+	{ os << *str; }
+	else if (auto val = std::get_if<std::string>(&attr.value))
+	{ os << *val; }
+	else if (auto val = std::get_if<float>(&attr.value))
+	{ os << *val; }
+	else if (auto val = std::get_if<Item>(&attr.value))
+	{ os << *val; }
+	else
+	{ os << "null"; }
+	return os << "}";
+}
+
 std::string Item::typeName() const
 {
 	return BufferManager::demangle(type);
+}
+
+Attribute Item::operator [] (std::size_t attrno)
+{
+	return Attribute(*this, attrno);
+}
+
+Attribute Item::attr (std::size_t attrno)
+{
+	return Attribute(*this, attrno);
+}
+
+std::ostream &operator << (std::ostream &os, const Item &item)
+{
+	os << "item[" << item.type << ":" << item.index << "]"; 
+	return os;
 }
 
 }

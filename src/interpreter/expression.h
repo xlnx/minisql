@@ -90,6 +90,7 @@ public:
 	void write(std::ostream &os) const override;
 	template <typename T>
 	bool is() const { return dynamic_cast<const T*>(value.get()); }
+	Value &getValue() { return value; }
 private:
 	Value value;
 };
@@ -107,6 +108,8 @@ public:
 		name(name)
 	{
 	}
+
+	std::string getName() const { return name; }
 	
 	void write(std::ostream &os) const override;
 private:

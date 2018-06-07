@@ -1,7 +1,7 @@
 "alias"_p =
 	"as"_t + "id"_t
 		>> reflect([](AstType &ast) -> ValueType {
-			return ValueType();
+			throw InterpretError("'as' operation is not supported.");
 		}),
 "alias_any"_p =
 	"alias"_p

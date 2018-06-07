@@ -101,6 +101,21 @@ inline double time(const std::function<void()> &f)
 	return std::chrono::duration<double>(end - start).count();
 }
 
+template <typename T>
+inline std::string demangle(const T &e)
+{
+	auto mangled_name = typeid(e).name();
+#	ifdef __GNUC__
+	int status;
+	auto demangled_name = abi::__cxa_demangle(mangled_name, nullptr, nullptr, &status);
+	if (demangled_name) {
+		mangled_name = demangled_name;
+		std::free(demangled_name);
+	}
+#	endif
+	return mangled_name;
+}
+
 namespace print
 {
 
@@ -135,6 +150,12 @@ inline double time(const std::function<void()> &f)
 	auto sec = ::debug::time(f);
 	std::cout << "Time: " << sec << " sec" << std::endl;
 	return sec;
+}
+
+template <typename T>
+inline void demangle(const T &e)
+{
+	std::cout << debug::demangle(e) << std::endl;
 }
 
 template <typename T>

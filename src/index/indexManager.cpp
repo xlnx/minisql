@@ -6,11 +6,7 @@ namespace minisql
 namespace __index
 {
 
-	map<int, vector<int>> IndexManager::tablesToTrees;
-	map<int, int> IndexManager::treesToTables;
-	map<int, Item> IndexManager::idToTree;
-
-static IndexManager dummy;
+IndexManager *IndexManager::instance;
 
 IndexManager::IndexManager()
 {
@@ -25,14 +21,16 @@ IndexManager::~IndexManager()
 
 void IndexManager::initialize(const vector<pair<int, AttributeValue>> &rels)
 {
+	static IndexManager man;
+	instance = &man;
 	// TODO: Accept data and initialize;
 	auto it = rels.begin();
 	for (int i = 0; it != rels.end(); ++it,++i) {
 		int table = it->first;
 		if (table != i){
-			treesToTables[i] = table;
-			idToTree[i] = std::get<Item>(it->second);
-			tablesToTrees[table].push_back(i);
+			instance->treesToTables[i] = table;
+			instance->idToTree[i] = std::get<Item>(it->second);
+			instance->tablesToTrees[table].push_back(i);
 		}
 	}
 

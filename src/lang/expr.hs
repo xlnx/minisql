@@ -5,7 +5,7 @@
 	"expr1"_p
 		>> reflect([](AstType &ast) -> ValueType {
 			auto expr = ast[0].gen();
-			std::cout << "get expr: " << std::get<Expr>(expr) << std::endl;
+			// std::cout << "get expr: " << std::get<Expr>(expr) << std::endl;
 			return std::move(expr);
 		}),
 		//Pass(),

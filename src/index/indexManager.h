@@ -17,14 +17,22 @@ using std::pair;
 
 class IndexManager
 {
-	static map<int,vector<int>> tablesToTrees;
-	static map<int,int> treesToTables;
-	static map<int, Item> idToTree;
+	// TODO: static object initialize order not specified!
+	map<int,vector<int>> tablesToTrees;
+	map<int,int> treesToTables;
+	map<int, Item> idToTree;
+
+	static IndexManager *instance;
 public:
 	IndexManager();
 	~IndexManager();
 
 	static void initialize(const vector<pair<int, AttributeValue>> &rels);
+
+	static Item getRoot(int index)
+	{
+		return instance->idToTree[index];
+	}
 };
 
 }

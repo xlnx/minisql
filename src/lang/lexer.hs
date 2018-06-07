@@ -32,6 +32,22 @@
 "and"_t = "and"_riw, 
 "not"_t = "not"_riw, 
 
+"quit"_t = "quit"_riw,
+"execfile"_t = "execfile"_riw,
+"create"_t = "create"_riw,
+"table"_t = "table"_riw,
+"unique"_t = "unique"_riw,
+"primary"_t = "primary"_riw,
+"key"_t = "key"_riw,
+"drop"_t = "drop"_riw,
+"delete"_t = "delete"_riw,
+"index"_t = "index"_riw,
+"on"_t = "on"_riw,
+
+"int"_t = "int"_riw,
+"float"_t = "float"_riw,
+"char"_t = "char"_riw,
+
 "<<"_t, 
 ">>"_t, 
 "-"_t, 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <buffer/buffer_def.h>
+#include <iostream>
 #include <utility>
 #include <fstream>
 #include <string>
@@ -15,7 +16,17 @@ namespace __buffer
 
 class Item;
 
-using AttributeValue = std::variant<std::string, int, float, Item, nullptr_t>;
+struct NullType 
+{
+	bool operator < (const NullType &) const { return true; }
+	bool operator <= (const NullType &) const { return true; }
+	bool operator > (const NullType &) const { return true; }
+	bool operator >= (const NullType &) const { return true; }
+	bool operator == (const NullType &) const { return true; }
+	bool operator != (const NullType &) const { return true; }
+};
+
+using AttributeValue = std::variant<std::string, int, float, Item, NullType>;
 using ItemValue = std::vector<AttributeValue>;
 
 class Attribute;
@@ -49,6 +60,9 @@ public:
 	Attribute attr (std::size_t attrno);
 
 	std::string typeName() const;
+
+	friend std::ostream &operator << (std::ostream &os, const Item &item);
+	friend std::ostream &operator << (std::ostream &os, const Attribute &attr);
 };
 
 class Attribute
@@ -76,27 +90,19 @@ public:
 		{ return value != other.value; }
 
 	bool operator == (nullptr_t) const
-		{ return std::holds_alternative<nullptr_t>(value); }
+		{ return std::holds_alternative<NullType>(value); }
 	bool operator != (nullptr_t) const 
-		{ return !std::holds_alternative<nullptr_t>(value); }
+		{ return !std::holds_alternative<NullType>(value); }
 
-	Item operator * () const
+	const Item operator * () const
 		{ return std::get<Item>(value); }
-	Item operator -> () const 
+	const Item operator -> () const 
 		{ return this->operator*(); }
 
 	std::string typeName() const;
+
+	friend std::ostream &operator << (std::ostream &os, const Attribute &attr);
 };
-
-inline Attribute Item::operator [] (std::size_t attrno)
-{
-	return Attribute(*this, attrno);
-}
-
-inline Attribute Item::attr (std::size_t attrno)
-{
-	return Attribute(*this, attrno);
-}
 
 class File;
 
@@ -207,11 +213,11 @@ public:
 		return doReadItem(*files[item.type], read(item.type, item.index));
 	}
 
-	static void writeAttribute(Attribute attr, const AttributeValue &val)
+	static void writeAttribute(const Attribute &attr, const AttributeValue &val)
 	{
 		doWriteAttribute(*files[attr.item.type], write(attr.item.type, attr.item.index), val, attr.index);
 	}
-	static AttributeValue readAttribute(Attribute attr)
+	static AttributeValue readAttribute(const Attribute &attr)
 	{
 		return doReadAttribute(*files[attr.item.type], read(attr.item.type, attr.item.index), attr.index);
 	}

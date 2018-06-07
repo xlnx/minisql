@@ -7,13 +7,13 @@
 
 #define BLOCK_SIZE (1024 * 4)
 
-#define SQL_INT 0x100000
-#define SQL_CHAR(N) (0x200000 | N)
-#define SQL_FLOAT 0x400000
+#define SQL_INT 0x100000U
+#define SQL_CHAR(N) (BufferElem(0x200000U | N))
+#define SQL_FLOAT 0x400000U
 
-#define SQL_POINTER 0x800000
-#define SQL_POINTER_DATA 0x800001
-#define SQL_POINTER_NODE 0x800002
+#define SQL_POINTER 0x800000U
+#define SQL_POINTER_DATA 0x800001U
+#define SQL_POINTER_NODE 0x800002U
 
 #define SQL_NONE_TYPE 0x0
 
@@ -46,5 +46,6 @@ using heap = std::vector<Args...>;
 }
 
 using __buffer::ItemType;
+using __buffer::BufferElem;
 
 }

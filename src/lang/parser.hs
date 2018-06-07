@@ -26,19 +26,27 @@ reflect([](AstType &ast){\
 // select
 #include <lang/insert.hs>
 
-"query"_p = 
-	"inst_select"_p
-		>> Pass(),
+// index
+#include <lang/index.hs>
+
+// ddl
+#include <lang/ddl.hs>
 
 "instructions"_p = 
-	"instruction"_p + "instructions"_p
+	"instructions"_p + "instruction"_p
 		>> Expand()
 	|""_t
 		>> NoReflect(),
 "instruction_body"_p = 
-	"query"_p
+	"inst_select"_p
 		>> Pass()
 	|"inst_insert"_p
+		>> Pass()
+	|"inst_ddl"_p
+		>> Pass()
+	|"inst_index"_p
+		>> Pass()
+	|"inst_delete"_p
 		>> Pass(),
 "instruction"_p = 
 	"instruction_body"_p + ";"_t
@@ -47,3 +55,17 @@ reflect([](AstType &ast){\
 "start"_p = 
 	"instructions"_p
 		>> Expand()
+	|"quit"_t + ";"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			std::cout << "See you next time! >w<" << std::endl;
+			exit(0); return ValueType();
+		})
+	|"quit"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			std::cout << "See you next time! >w<" << std::endl;
+			exit(0); return ValueType();
+		})
+	|"execfile"_t + ";"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			return ValueType();
+		})

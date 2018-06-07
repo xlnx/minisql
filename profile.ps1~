@@ -1,4 +1,0 @@
-cd ./build
-gprof.exe ./minisql.exe | gprof2dot.exe | dot -Tpng -o $profile.png
-cd ..
-code ./build/$profile.png

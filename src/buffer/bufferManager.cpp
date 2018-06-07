@@ -220,7 +220,7 @@ void BufferManager::doWriteAttribute(File &file, char *dest, const AttributeValu
 				file.elems[i] & 0x00ffff);
 		} break;
 		case 0x80: {
-			if (std::holds_alternative<nullptr_t>(val))
+			if (std::holds_alternative<NullType>(val))
 			{
 				ItemIndex null = SQL_NULL;
 				memcpy(dest + file.attrOffset[i], &null, sizeof(ItemIndex));
@@ -251,7 +251,7 @@ AttributeValue BufferManager::doReadAttribute(File &file, char *dest, SizeType i
 		case 0x80: {
 			auto idx = *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]);
 			if (idx == SQL_NULL) {
-				return nullptr;
+				return NullType();
 			}
 			else switch (file.elems[i] & 0x0000ff)
 			{
@@ -323,12 +323,12 @@ BufferManager::BufferManager()
 			}
 			else
 			{
-				rels.emplace_back(file->dataType, nullptr);
+				rels.emplace_back(file->dataType, NullType());
 			}
 		}
 		else
 		{
-			rels.emplace_back(-1, nullptr);
+			rels.emplace_back(-1, NullType());
 		}
 	}
 	IndexManager::initialize(rels);

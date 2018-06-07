@@ -1,6 +1,7 @@
 #pragma once
 
 #include <buffer/buffer_aux.h>
+#include <debug/debug.hpp>
 
 namespace minisql
 {
@@ -16,8 +17,11 @@ public:
 
 	void init()
 	{
-		root = BufferManager::insertItem(1, { nullptr, nullptr, nullptr });
-		BufferManager::registerRoot(root);
+		// root = BufferManager::insertItem(1, { nullptr, nullptr, nullptr });
+		// BufferManager::registerRoot(root);
+		if (root[0] == nullptr) {
+			debug::print::ln("left is nullptr");
+		}
 		// left = BufferManager::insertItem(1, );
 	}
 };
