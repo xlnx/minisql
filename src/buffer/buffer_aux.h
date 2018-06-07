@@ -15,8 +15,8 @@ namespace __buffer
 
 class Item;
 
-using AttributeType = std::variant<std::string, int, float, Item, void*>;
-using ItemValue = std::vector<AttributeType>;
+using AttributeValue = std::variant<std::string, int, float, Item, nullptr_t>;
+using ItemValue = std::vector<AttributeValue>;
 
 class Attribute;
 
@@ -28,12 +28,25 @@ class Item
 private:
 	ItemIndex index = SQL_NAP;
 	BufferType type = 0;
-
 public:
+	bool operator < (const Item &other) const
+		{ return index < other.index; }
+	bool operator <= (const Item &other) const
+		{ return index <= other.index; }
+	bool operator > (const Item &other) const
+		{ return index > other.index; }
+	bool operator >= (const Item &other) const
+		{ return index >= other.index; }
+	bool operator == (const Item &other) const
+		{ return index == other.index; }
+	bool operator != (const Item &other) const
+		{ return index != other.index; }
+
 	Item() = default;
 	Item(BufferType type, ItemIndex index): index(index), type(type) {}
 
 	Attribute operator [] (std::size_t attrno);
+	Attribute attr (std::size_t attrno);
 
 	std::string typeName() const;
 };
@@ -45,18 +58,45 @@ class Attribute
 private:
 	Item item;
 	SizeType index;
+	AttributeValue value;
 
-	Attribute(Item item, SizeType index): item(item), index(index) {}
+	Attribute(Item item, SizeType index);
 public:
-	bool operator < (const Attribute &) const;
-	bool operator <= (const Attribute &) const;
-	bool operator > (const Attribute &) const;
-	bool operator >= (const Attribute &) const;
-	bool operator == (const Attribute &) const;
-	bool operator != (const Attribute &) const;
+	bool operator < (const Attribute &other) const
+		{ return value < other.value; }
+	bool operator <= (const Attribute &other) const
+		{ return value <= other.value; }
+	bool operator > (const Attribute &other) const
+		{ return value > other.value; }
+	bool operator >= (const Attribute &other) const
+		{ return value >= other.value; }
+	bool operator == (const Attribute &other) const
+		{ return value == other.value; }
+	bool operator != (const Attribute &other) const
+		{ return value != other.value; }
+
+	bool operator == (nullptr_t) const
+		{ return std::holds_alternative<nullptr_t>(value); }
+	bool operator != (nullptr_t) const 
+		{ return !std::holds_alternative<nullptr_t>(value); }
+
+	Item operator * () const
+		{ return std::get<Item>(value); }
+	Item operator -> () const 
+		{ return this->operator*(); }
 
 	std::string typeName() const;
 };
+
+inline Attribute Item::operator [] (std::size_t attrno)
+{
+	return Attribute(*this, attrno);
+}
+
+inline Attribute Item::attr (std::size_t attrno)
+{
+	return Attribute(*this, attrno);
+}
 
 class File;
 
@@ -86,11 +126,9 @@ class File final
 	std::fstream fs;
 
 public:
-	File(BufferType type, const ItemType &elems, OffType offset, 
-		BufferType dataType, ItemIndex root);
+	File(BufferType type, const ItemType &elems, OffType offset, BufferType dataType);
 
-	File(BufferType type, ItemIndex next, OffType offset, 
-		BufferType dataType, ItemIndex root);
+	File(BufferType type, ItemIndex next, OffType offset, BufferType dataType);
 
 	~File();
 
@@ -142,8 +180,8 @@ private:
 	static void doWriteItem(File &file, char *dest, const ItemValue &data);
 	static ItemValue doReadItem(File &file, char *dest);
 
-	static void doWriteAttribute(File &file, char *dest, const AttributeType &val, SizeType index);
-	static AttributeType doReadAttribute(File &file, char *dest, SizeType index);
+	static void doWriteAttribute(File &file, char *dest, const AttributeValue &val, SizeType index);
+	static AttributeValue doReadAttribute(File &file, char *dest, SizeType index);
 public:
 	BufferManager();
 	~BufferManager();
@@ -169,11 +207,11 @@ public:
 		return doReadItem(*files[item.type], read(item.type, item.index));
 	}
 
-	static void writeAttribute(Attribute attr, const AttributeType &val)
+	static void writeAttribute(Attribute attr, const AttributeValue &val)
 	{
 		doWriteAttribute(*files[attr.item.type], write(attr.item.type, attr.item.index), val, attr.index);
 	}
-	static AttributeType readAttribute(Attribute attr)
+	static AttributeValue readAttribute(Attribute attr)
 	{
 		return doReadAttribute(*files[attr.item.type], read(attr.item.type, attr.item.index), attr.index);
 	}
@@ -187,7 +225,7 @@ using __buffer::BufferType;
 using __buffer::ItemIndex;
 using __buffer::Item;
 using __buffer::Attribute;
-using __buffer::AttributeType;
+using __buffer::AttributeValue;
 using __buffer::ItemValue;
 
 }

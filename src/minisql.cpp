@@ -10,38 +10,17 @@ using namespace std;
 using namespace minisql;
 using namespace debug;
 
-#pragma pack(1)
-struct {
-	char a[30] = "Hello shit!";
-	int b = 2, c = 4;
-	char d[10] = "Non Dummy";
-} test;
-
 int main(int argc, char **argv)
 {
-	std::ios::sync_with_stdio(false);
 	// BufferManager::registerBufferType({SQL_CHAR(30), SQL_INT, SQL_INT, SQL_CHAR(10)});
 	// BufferManager::registerBufferType({SQL_POINTER_NODE, SQL_POINTER_DATA, SQL_POINTER_NODE}, 0);
 
 	BPlusTree btree;
+	btree.init();
 
-
-	// hl([&]() {
-		// auto idx = BufferManager::insert(type, reinterpret_cast<const char*>(&test));
-		// auto data = BufferManager::get(type, idx);
-		// BufferManager::registerBufferType({SQL_POINTER, })
 		
 	// for (int i = 0; i != 100; ++i) {
-	// 	auto item = BufferManager::insertItem(0, reinterpret_cast<const char*>(&test));
+	// 	auto item = BufferManager::insertItem(0, {"Hello world!", 2, 4, "Non Dummy"});
 	// }
-		
-		// print::mem(*reinterpret_cast<char(*)[sizeof(test)]>(BufferManager::read(0, 0)));
-		// BufferManager::write(0, 0, reinterpret_cast<const char*>(&test));
-		// print::mem(*reinterpret_cast<char(*)[sizeof(test)]>(BufferManager::read(0, 0)));
-
-		// Item item(0);
-		// debug::print::ln(item.typeName());
-		// debug::print::ln(item[0].typeName());
-	// });
 	return 0;
 }

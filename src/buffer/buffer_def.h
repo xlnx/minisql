@@ -30,6 +30,8 @@ namespace minisql
 namespace __buffer
 {
 
+using std::nullptr_t;
+
 using BufferType = unsigned short;
 using BufferElem = unsigned;
 using OffType = long long;

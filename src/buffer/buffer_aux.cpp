@@ -17,9 +17,10 @@ struct FileHeader
 	SizeType numBlocks;
 	SizeType numDatas;
 	ItemIndex erased;
+	ItemIndex root;
 };
 
-static void open(std::fstream &fs, BufferType id)
+static void open(std::fstream &fs, BufferType id, ItemIndex root)
 {
 	std::ostringstream os;
 	os << std::dec << id;
@@ -31,15 +32,15 @@ static void open(std::fstream &fs, BufferType id)
 		h.numBlocks = 0;
 		h.numDatas = 0;
 		h.erased = SQL_NULL;
+		h.root = root;
 		fs.write(reinterpret_cast<const char*>(&h), SizeOf(FileHeader));
 		fs.close();
 		fs.open(SE_FNAME(os.str()), std::ios::binary | std::ios::in | std::ios::out);
 	}
 }
 
-File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset, 
-	BufferType dataType, ItemIndex root):
-	elems(elems), offset(offset), type(type), dataType(dataType), valid(true), root(type, root)
+File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset, BufferType dataType):
+	elems(elems), offset(offset), type(type), dataType(dataType), valid(true)
 {
 	for (auto e: elems)
 	{
@@ -62,12 +63,13 @@ File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset
 		}
 	}
 	blockCapacity = BLOCK_SIZE / size;
-	open(fs, type);
+	open(fs, type, dataType == type ? SQL_NAP : SQL_NULL);
 	FileHeader h;
 	fs.seekg(- SizeOf(FileHeader), std::ios::end);
 	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
+	root = Item(type, h.root);
 	SizeType idx = 0;
 	for (auto i = 0; i != h.numBlocks; ++i)
 	{
@@ -81,16 +83,17 @@ File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset
 	}
 }
 
-File::File(BufferType type, ItemIndex next, OffType offset, BufferType dataType, ItemIndex root):
-	next(next), offset(offset), type(type), dataType(dataType), valid(false), root(type, root)
+File::File(BufferType type, ItemIndex next, OffType offset, BufferType dataType):
+	next(next), offset(offset), type(type), dataType(dataType), valid(false)
 {
 	blockCapacity = BLOCK_SIZE / size;
-	open(fs, type);
+	open(fs, type, dataType == type ? SQL_NAP : SQL_NULL);
 	FileHeader h;
 	fs.seekg(- SizeOf(FileHeader), std::ios::beg);
 	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
+	root = Item(type, h.root);
 	for (auto i = 0; i != h.numBlocks; ++i)
 	{
 		blocks.emplace_back(new Block(*this, BLOCK_SIZE * i));
@@ -112,6 +115,7 @@ void File::writeHeader()
 	h.erased = erased;
 	h.numDatas = numDatas;
 	h.numBlocks = blocks.size();
+	h.root = root.index;
 	fs.seekp(BLOCK_SIZE * h.numBlocks, std::ios::beg);
 	// debug::print::state(fs);
 	fs.write(reinterpret_cast<const char*>(&h), SizeOf(FileHeader));

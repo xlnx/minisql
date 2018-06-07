@@ -33,7 +33,6 @@ struct BufferTypeInfo
 	SizeType numTypes;
 	ItemIndex next;
 	BufferType dataType;
-	ItemIndex root;
 };
 
 static std::fstream &icursor()
@@ -58,7 +57,7 @@ static std::fstream &icursor()
 
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems)
 {
-	files.emplace_back(new File(BufferType(files.size()), elems, offindex, BufferType(files.size()), SQL_NAP));
+	files.emplace_back(new File(BufferType(files.size()), elems, offindex, BufferType(files.size())));
 	offindex += SizeOf(BufferElem) * elems.size();
 	auto &cursor = icursor();
 	auto &file = *files.back();
@@ -72,7 +71,7 @@ BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elem
 
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems, BufferType dataType)
 {
-	files.emplace_back(new File(BufferType(files.size()), elems, offindex, dataType, SQL_NULL));
+	files.emplace_back(new File(BufferType(files.size()), elems, offindex, dataType));
 	offindex += SizeOf(BufferElem) * elems.size();
 	auto &cursor = icursor();
 	auto &file = *files.back();
@@ -124,7 +123,6 @@ void BufferManager::writeIndex()
 		info.numTypes = (*iter)->elems.size();
 		info.offset = (*iter)->offset;
 		info.dataType = (*iter)->dataType;
-		info.root = (*iter)->root.index;
 		cursor.write(reinterpret_cast<const char*>(&info), SizeOf(BufferTypeInfo));
 	}
 	writeHeader();
@@ -207,7 +205,7 @@ std::string BufferManager::demangle(BufferType type)
 
 // return Item(type, index);
 
-void BufferManager::doWriteAttribute(File &file, char *dest, const AttributeType &val, SizeType i)
+void BufferManager::doWriteAttribute(File &file, char *dest, const AttributeValue &val, SizeType i)
 {
 	switch ((file.elems[i] & 0xff0000) >> 16)
 	{
@@ -222,7 +220,7 @@ void BufferManager::doWriteAttribute(File &file, char *dest, const AttributeType
 				file.elems[i] & 0x00ffff);
 		} break;
 		case 0x80: {
-			if (std::holds_alternative<void*>(val))
+			if (std::holds_alternative<nullptr_t>(val))
 			{
 				ItemIndex null = SQL_NULL;
 				memcpy(dest + file.attrOffset[i], &null, sizeof(ItemIndex));
@@ -236,7 +234,7 @@ void BufferManager::doWriteAttribute(File &file, char *dest, const AttributeType
 	}
 }
 
-AttributeType BufferManager::doReadAttribute(File &file, char *dest, SizeType i)
+AttributeValue BufferManager::doReadAttribute(File &file, char *dest, SizeType i)
 {
 	switch ((file.elems[i] & 0xff0000) >> 16)
 	{
@@ -251,13 +249,17 @@ AttributeType BufferManager::doReadAttribute(File &file, char *dest, SizeType i)
 			return std::string(beg, beg + (file.elems[i] & 0x00ffff));
 		} break;
 		case 0x80: {
-			switch (file.elems[i] & 0x0000ff)
+			auto idx = *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]);
+			if (idx == SQL_NULL) {
+				return nullptr;
+			}
+			else switch (file.elems[i] & 0x0000ff)
 			{
 				case 0x01: {	// DATA
-					return Item(file.dataType, *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]));
+					return Item(file.dataType, idx);
 				} break;
 				case 0x02: {	// NODE
-					return Item(file.type, *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]));
+					return Item(file.type, idx);
 				} break;
 			}
 		} break;
@@ -285,6 +287,7 @@ ItemValue BufferManager::doReadItem(File &file, char *dest)
 
 BufferManager::BufferManager()
 {
+	std::ios::sync_with_stdio(false);
 	auto &cursor = icursor();
 	BufferManagerInfo info;
 	cursor.seekg(- SizeOf(BufferManagerInfo), std::ios::end);
@@ -302,31 +305,31 @@ BufferManager::BufferManager()
 			cursor.seekg(bi.offset, std::ios::beg);
 			elems.resize(bi.numTypes);
 			cursor.read(reinterpret_cast<char*>(&elems[0]), SizeOf(BufferElem) * bi.numTypes);
-			files.emplace_back(new File(i - 1, elems, bi.offset, bi.dataType, bi.root));
+			files.emplace_back(new File(i - 1, elems, bi.offset, bi.dataType));
 		}
 		else
 		{
-			files.emplace_back(new File(i - 1, bi.next, bi.offset, bi.dataType, bi.root));
+			files.emplace_back(new File(i - 1, bi.next, bi.offset, bi.dataType));
 		}
 	}
-	std::vector<int> rels;
+	std::vector<std::pair<int, AttributeValue>> rels;
 	for (auto file: files)
 	{
 		if (file->valid) 
 		{
-			rels.emplace_back(file->dataType);
+			if (file->dataType != file->type)
+			{
+				rels.emplace_back(file->dataType, file->root);
+			}
+			else
+			{
+				rels.emplace_back(file->dataType, nullptr);
+			}
 		}
 		else
 		{
-			rels.emplace_back(-1);
+			rels.emplace_back(-1, nullptr);
 		}
-	}
-	for (auto i = 0u; i != rels.size(); ++i)
-	{
-		if (rels[i] != i && rels[i] != -1)
-		{
-			auto e = files[i]->root;
-		} 
 	}
 	IndexManager::initialize(rels);
 }
@@ -335,7 +338,7 @@ BufferManager::~BufferManager()
 {
 	for (auto block: cachedBlocks)
 	{
-		// debug::print::ln(block);
+		debug::print::ln(block);
 		block->release();
 	}
 	for (auto f: files)
