@@ -2,7 +2,7 @@
 	"create"_t + "table"_t + "id"_t + "("_t + "create_contents"_p + ")"_t 
 		>> reflect([](AstType &ast) -> ValueType {
 			API::createTable(std::get<std::string>(ast.term(2)), 
-				std::get<std::map<std::string, TableAttribute>>(ast[0].gen()));
+				std::get<std::vector<TableAttribute>>(ast[0].gen()));
 			return ValueType();
 		}),
 "create_type"_p = 
@@ -49,28 +49,33 @@
 		>> reflect([](AstType &ast) -> ValueType {
 			auto Q = std::get<TableAttribute>(ast[1].gen());
 			Q.type = std::get<BufferElem>(ast[0].gen());
-			return std::make_pair(std::get<std::string>(ast.term(0)), Q);
+			Q.name = std::get<std::string>(ast.term(0));
+			return Q;
 		}),
 "create_contents"_p =
 	"create_contents_aux"_p + ","_t + "create_extra_qualifier"_p
 		>> reflect([](AstType &ast) -> ValueType {
-			auto M = std::get<std::map<std::string, TableAttribute>>(ast[0].gen());
-			M[std::get<std::string>(ast[1].gen())].isPrimary = true;
-			return M;
+			auto M = std::get<std::vector<TableAttribute>>(ast[0].gen());
+			auto k = std::get<std::string>(ast[1].gen());
+			for (auto &m: M) if (m.name == k) 
+			{
+				m.isPrimary = true; return M;
+			}
+			throw InterpretError("undefined symbol '" + k + "'.");
 		})
 	|"create_contents_aux"_p
 		>> Pass(),
 "create_contents_aux"_p = 
 	"create_contents_aux"_p + ","_t +  "create_content"_p
 		>> reflect([](AstType &ast) -> ValueType {
-			auto M = std::get<std::map<std::string, TableAttribute>>(ast[0].gen());
-			M.emplace(std::get<std::pair<std::string, TableAttribute>>(ast[1].gen()));
+			auto M = std::get<std::vector<TableAttribute>>(ast[0].gen());
+			M.emplace_back(std::get<TableAttribute>(ast[1].gen()));
 			return M;
 		})
 	|"create_content"_p
 		>> reflect([](AstType &ast) -> ValueType {
-			std::map<std::string, TableAttribute> M;
-			M.emplace(std::get<std::pair<std::string, TableAttribute>>(ast[0].gen()));
+			std::vector<TableAttribute> M;
+			M.emplace_back(std::get<TableAttribute>(ast[0].gen()));
 			return M;
 		}),
 "inst_ddl"_p = 

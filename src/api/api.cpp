@@ -52,10 +52,47 @@ void API::erase(
 
 void API::createTable(
 	const std::string &table,
-	const std::map<std::string, TableAttribute> &attrs
+	const std::vector<TableAttribute> &attrs
 )
 {
-	debug::print::ln("create table", table, "attrs");
+	auto sec = debug::time([&]() {
+		debug::print::ln("create table", table, "attrs");
+
+		std::string pk = "";
+		for (auto &e: attrs)
+		{
+			if (e.isPrimary)
+			{
+				if (e.isUnique)
+					throw "primary key must not be specified 'unique'.";
+				if (pk != "")
+					throw "duplicate primary key not supported.";
+				pk = e.name;
+			}
+		}
+
+		debug::print::ln(attrs);
+
+		ItemType ty;
+		for (auto &e: attrs)
+		{
+			ty.emplace_back(e.type);
+		}
+
+		BufferManager::registerBufferType(ty);
+
+
+		// debug::print::ln(genAttrs);
+		// for (auto &e: attrs)
+		// {
+		// 	debug::print::ln();
+		// }
+
+		// BufferManager::registerBufferType({SQL_CHAR(30), SQL_INT, SQL_INT, SQL_CHAR(10)});
+		// BufferManager::registerBufferType({SQL_POINTER_NODE, SQL_POINTER_DATA, SQL_POINTER_NODE}, 0);
+	});
+	using namespace debug::strutil;
+	debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::dropTable(

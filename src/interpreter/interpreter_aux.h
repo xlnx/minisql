@@ -9,9 +9,14 @@
 namespace minisql
 {
 
+namespace __interpret
+{
+
 class Flag
 {
 };
+
+}
 
 using InterpretError = std::logic_error;
 

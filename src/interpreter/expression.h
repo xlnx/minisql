@@ -12,6 +12,9 @@
 namespace minisql 
 {
 
+namespace __interpret
+{
+
 class ExprNode;
 
 class UnaryExprNode;
@@ -222,5 +225,9 @@ inline std::ostream & operator << (std::ostream &os, const Expr &e)
 	e->write(os);
 	return os;
 }
+
+}
+
+using __interpret::Expr;
 
 }

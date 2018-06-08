@@ -2,8 +2,9 @@
 
 #include <buffer/buffer_aux.h>
 #include <map>
-#include<vector>
+#include <vector>
 #include <utility>
+#include <function>
 
 namespace minisql
 {
@@ -17,22 +18,24 @@ using std::pair;
 
 class IndexManager
 {
-	// TODO: static object initialize order not specified!
-	map<int,vector<int>> tablesToTrees;
-	map<int,int> treesToTables;
-	map<int, Item> idToTree;
+	static map<int,vector<int>> tablesToTrees;
+	static map<int,int> treesToTables;
+	static map<int, Item> idToTree;
 
-	static IndexManager *instance;
+	typedef std::function<bool(const Value&)> Filter;
+	typedef std::pair<Value, Value> Pair;
 public:
 	IndexManager();
 	~IndexManager();
 
 	static void initialize(const vector<pair<int, AttributeValue>> &rels);
+	
+	static std::vector<Item> query(int id, const Pair &range, const Filter &Filter);
 
-	static Item getRoot(int index)
-	{
-		return instance->idToTree[index];
-	}
+	// static Item getRoot(int index)
+	// {
+	// 	return idToTree[index];
+	// }
 };
 
 }

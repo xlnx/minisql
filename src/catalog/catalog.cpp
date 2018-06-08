@@ -14,4 +14,14 @@ CatalogManager::~CatalogManager()
 {
 }
 
+void CatalogManager::createTable()
+{
+	//
+}
+
+void CatalogManager::lookup(int id)
+{
+	//
+}
+
 }

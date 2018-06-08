@@ -17,9 +17,15 @@ namespace __api
 
 struct TableAttribute
 {
+	std::string name;
 	BufferElem type;
 	bool isUnique = false;
 	bool isPrimary = false;
+
+	friend std::ostream &operator << (std::ostream &os, const TableAttribute &at)
+	{
+		os << at.name << " " << at.type << " " << at.isUnique << " " << at.isPrimary; return os;
+	}
 };
 
 class API
@@ -57,7 +63,7 @@ public:
 
 	static void createTable(
 		const std::string &tableName,
-		const std::map<std::string, TableAttribute> &attrs
+		const std::vector<TableAttribute> &attrs
 	);
 
 	static void dropTable(

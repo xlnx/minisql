@@ -9,6 +9,9 @@
 namespace minisql
 {
 
+namespace __interpret
+{
+
 class Type;
 
 class String;
@@ -198,5 +201,9 @@ inline std::ostream & operator << (std::ostream &os, const Value &e)
 	e->write(os);
 	return os;
 }
+
+}
+
+using __interpret::Value;
 
 }

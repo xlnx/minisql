@@ -3,6 +3,9 @@
 namespace minisql
 {
 
+namespace __interpret
+{
+
 Value Type::operator + (const Value &other) const
 	{ return toNumber() + other->toNumber(); }
 Value Type::operator - (const Value &other) const
@@ -124,6 +127,8 @@ String Null::toString() const
 void Null::write(std::ostream &os) const
 {
 	os << "null";
+}
+
 }
 
 }

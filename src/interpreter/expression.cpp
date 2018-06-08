@@ -4,6 +4,9 @@
 namespace minisql
 {
 
+namespace __interpret
+{
+
 static Value like(const Value &lhs, const Value &rhs)
 {
 	std::string l = lhs->toString();
@@ -105,6 +108,8 @@ void BinaryExprNode::write(std::ostream &os) const
 void ColumnNode::write(std::ostream &os) const
 {
 	os << name;
+}
+
 }
 
 }

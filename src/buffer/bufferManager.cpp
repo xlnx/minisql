@@ -14,13 +14,6 @@ namespace minisql
 namespace __buffer
 {
 
-std::vector<File*> BufferManager::files;
-heap<Block*> BufferManager::cachedBlocks;
-OffType BufferManager::offindex;
-ItemIndex BufferManager::erased;
-
-static BufferManager dummy;
-
 struct BufferManagerInfo
 {
 	SizeType numBufferTypes;

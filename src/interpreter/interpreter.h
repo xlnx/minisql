@@ -1,6 +1,5 @@
 #pragma once 
 
-#include <sheet.h>
 #include <interpreter/expression.h>
 #include <interpreter/interpreter_aux.h>
 #include <new_parser/parser.h>
@@ -11,11 +10,13 @@
 namespace minisql
 {
 
+namespace __interpret
+{
+
 class Interpreter
 {
 public:
 	using ValueType = std::variant<
-		Sheet, 
 		Expr, 
 		double, 
 		std::string, 
@@ -26,8 +27,7 @@ public:
 		std::vector<Value>,
 		std::vector<std::vector<Value>>,
 		std::vector<std::string>,
-		std::map<std::string, TableAttribute>,
-		std::pair<std::string, TableAttribute>,
+		std::vector<TableAttribute>,
 		std::pair<bool, IsExprType>
 	>;
 	using AstType = ast<ValueType>;
@@ -52,5 +52,9 @@ private:
 
 	bool isComplete;
 };
+
+}
+
+using __interpret::Interpreter;
 
 }

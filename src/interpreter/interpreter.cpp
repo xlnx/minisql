@@ -5,6 +5,9 @@
 namespace minisql
 {
 
+namespace __interpret
+{
+
 using ValueType = Interpreter::ValueType;
 using AstType = Interpreter::AstType;
 using CharType = Interpreter::CharType;
@@ -44,3 +47,4 @@ void Interpreter::interpret(const std::string &sql_insts)
 	
 }
 
+}

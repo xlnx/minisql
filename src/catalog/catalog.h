@@ -13,6 +13,10 @@ class CatalogManager
 public:
 	CatalogManager();
 	~CatalogManager();
+
+	static void createTable();
+
+	static void lookup(int id);
 };
 
 }
