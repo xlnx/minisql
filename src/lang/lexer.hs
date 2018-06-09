@@ -43,6 +43,9 @@
 "delete"_t = "delete"_riw,
 "index"_t = "index"_riw,
 "on"_t = "on"_riw,
+"show"_t = "show"_riw,
+"tables"_t = "tables"_riw,
+"indexs"_t = "indexs"_riw,
 
 "int"_t = "int"_riw,
 "float"_t = "float"_riw,

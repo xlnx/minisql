@@ -6,8 +6,6 @@
 #include <variant>
 #include <utility>
 
-#define SE_FNAME(suffix) (std::string("./SSBsb3ZlIGtvaXNoaS1jaGFu") + suffix + ".dat")
-
 namespace minisql
 {
 
@@ -28,31 +26,11 @@ struct BufferTypeInfo
 	BufferType dataType;
 };
 
-static std::fstream &icursor()
-{
-	static std::fstream cur = []() -> std::fstream {
-		std::fstream cur;
-		cur.open(SE_FNAME(""), std::ios::binary | std::ios::in | std::ios::out);
-		if (!cur) {
-			cur.open(SE_FNAME(""), std::ios::binary | std::ios::trunc | std::ios::out);
-			cur.seekp(0, std::ios::beg);
-			BufferManagerInfo info;
-			info.numBufferTypes = 0;
-			info.erased = SQL_NULL;
-			cur.write(reinterpret_cast<const char*>(&info), SizeOf(BufferManagerInfo));
-			cur.close();
-			cur.open(SE_FNAME(""), std::ios::binary | std::ios::in | std::ios::out);
-		}
-		return cur;
-	} ();
-	return cur;
-}
-
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems)
 {
 	files.emplace_back(new File(BufferType(files.size()), elems, offindex, BufferType(files.size())));
 	offindex += SizeOf(BufferElem) * elems.size();
-	auto &cursor = icursor();
+	auto &cursor = icursor;
 	auto &file = *files.back();
 	cursor.seekp(file.offset, std::ios::beg);
 	// debug::print::ln(file.offset, cursor.tellg(), cursor.tellp());
@@ -66,7 +44,7 @@ BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elem
 {
 	files.emplace_back(new File(BufferType(files.size()), elems, offindex, dataType));
 	offindex += SizeOf(BufferElem) * elems.size();
-	auto &cursor = icursor();
+	auto &cursor = icursor;
 	auto &file = *files.back();
 	cursor.seekp(file.offset, std::ios::beg);
 	// debug::print::ln(file.offset, cursor.tellg(), cursor.tellp());
@@ -100,14 +78,14 @@ void BufferManager::writeHeader()
 	BufferManagerInfo info;
 	info.numBufferTypes = files.size();
 	info.erased = erased;
-	auto &cursor = icursor();
+	auto &cursor = icursor;
 	cursor.seekp(offindex + files.size() * SizeOf(BufferTypeInfo), std::ios::beg);
 	cursor.write(reinterpret_cast<const char*>(&info), SizeOf(BufferManagerInfo));
 }
 
 void BufferManager::writeIndex()
 {
-	auto &cursor = icursor();
+	auto &cursor = icursor;
 	cursor.seekp(offindex, std::ios::beg);
 	BufferTypeInfo info;
 	for (auto iter = files.rbegin(); iter != files.rend(); ++iter)
@@ -133,7 +111,7 @@ char *BufferManager::insert(BufferType scope, ItemIndex &index)
 		block = file.blocks[index / file.blockCapacity];
 		id = file.erased % file.blockCapacity;
 		ensureCached(*block);
-		memcpy(&file.erased, block->data + file.size * id, SizeOf(SizeType));
+		memcpy(&file.erased, block->data + file.size * id, SizeOf(ItemIndex));
 	}
 	else
 	{
@@ -142,8 +120,11 @@ char *BufferManager::insert(BufferType scope, ItemIndex &index)
 		ensureCached(*block);
 		file.numDatas++;
 	}
+	auto ptr = block->data + file.size * id;
+	RefCount n = -3;
+	memcpy(ptr + file.attrOffset.back(), reinterpret_cast<const char*>(&n), sizeof(RefCount));
 	block->isModified = true;
-	return block->data + file.size * id;
+	return ptr;
 }
 
 char *BufferManager::read(BufferType scope, ItemIndex index)
@@ -174,6 +155,9 @@ std::string BufferManager::getTypeName(BufferElem type)
 	{
 		case 0x10: {	// SQL_INT
 			os << "int";
+		} break;
+		case 0x40: {
+			os << "float";
 		} break;
 		case 0x20: {	// SQL_CHAR(N)
 			os << "char(" << std::dec << (type & 0x00ffff) << ")";
@@ -278,10 +262,28 @@ ItemValue BufferManager::doReadItem(File &file, char *dest)
 	return val;
 }
 
+void BufferManager::removeRef(Item item)
+{
+	auto &file = *files[item.type];
+	auto ptr = write(item.type, item.index);
+	auto &ref = *reinterpret_cast<RefCount*>(ptr + file.attrOffset.back());
+	if (++ref >= -3)
+	{
+		ref = file.erased; file.erased = item.index;
+	}
+}
+
+void BufferManager::addRef(Item item)
+{
+	auto &file = *files[item.type];
+	auto ptr = write(item.type, item.index);
+	--*reinterpret_cast<RefCount*>(ptr + file.attrOffset.back());
+}
+
 BufferManager::BufferManager()
 {
 	std::ios::sync_with_stdio(false);
-	auto &cursor = icursor();
+	auto &cursor = icursor;
 	BufferManagerInfo info;
 	cursor.seekg(- SizeOf(BufferManagerInfo), std::ios::end);
 	cursor.read(reinterpret_cast<char*>(&info), SizeOf(BufferManagerInfo));

@@ -69,3 +69,13 @@ reflect([](AstType &ast){\
 		>> reflect([](AstType &ast) -> ValueType {
 			return ValueType();
 		})
+	|"show"_t + "tables"_t + ";"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			API::showTables();
+			return ValueType();
+		})
+	|"show"_t + "indexs"_t + "id"_t + ";"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			API::showIndexs(std::get<std::string>(ast.term(2)));
+			return ValueType();
+		})

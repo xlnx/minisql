@@ -64,7 +64,9 @@
 				"insert_value_lists"_p
 		>> reflect([](AstType &ast) -> ValueType {
 			auto table = std::get<std::string>(ast.term(2));
-			for (auto &e: std::get<std::vector<std::vector<Value>>>(ast[2].gen()))
-				API::insert(table, e);
+			auto vec = std::get<std::vector<std::vector<Value>>>(ast[2].gen());
+			if (vec.size() != 1) 
+				throw InterpretError("inserting multiple data not allowed.");
+			API::insert(table, vec[0]);
 			return ValueType();
 		}),

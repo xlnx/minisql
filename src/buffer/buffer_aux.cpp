@@ -62,24 +62,20 @@ File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset
 			} break;
 		}
 	}
+	attrOffset.emplace_back(SizeOf(RefCount));
+	size += SizeOf(RefCount);
 	blockCapacity = BLOCK_SIZE / size;
-	open(fs, type, dataType == type ? SQL_NAP : SQL_NULL);
+	open(cursor, type, dataType == type ? SQL_NAP : SQL_NULL);
 	FileHeader h;
-	fs.seekg(- SizeOf(FileHeader), std::ios::end);
-	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
+	cursor.seekg(- SizeOf(FileHeader), std::ios::end);
+	cursor.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
 	root = Item(type, h.root);
 	SizeType idx = 0;
 	for (auto i = 0; i != h.numBlocks; ++i)
 	{
-		auto ncap = 0;
 		blocks.emplace_back(new Block(*this, BLOCK_SIZE * i));
-		while (idx < h.numDatas && ncap++ < blockCapacity)
-		{
-			// TODO: ensure no erased. no need to keep index = sub
-			items.emplace_back(type, idx++);
-		}
 	}
 }
 
@@ -87,10 +83,10 @@ File::File(BufferType type, ItemIndex next, OffType offset, BufferType dataType)
 	next(next), offset(offset), type(type), dataType(dataType), valid(false)
 {
 	blockCapacity = BLOCK_SIZE / size;
-	open(fs, type, dataType == type ? SQL_NAP : SQL_NULL);
+	open(cursor, type, dataType == type ? SQL_NAP : SQL_NULL);
 	FileHeader h;
-	fs.seekg(- SizeOf(FileHeader), std::ios::beg);
-	fs.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
+	cursor.seekg(- SizeOf(FileHeader), std::ios::beg);
+	cursor.read(reinterpret_cast<char*>(&h), SizeOf(FileHeader));
 	erased = h.erased;
 	numDatas = h.numDatas;
 	root = Item(type, h.root);
@@ -116,11 +112,11 @@ void File::writeHeader()
 	h.numDatas = numDatas;
 	h.numBlocks = blocks.size();
 	h.root = root.index;
-	fs.seekp(BLOCK_SIZE * h.numBlocks, std::ios::beg);
-	// debug::print::state(fs);
-	fs.write(reinterpret_cast<const char*>(&h), SizeOf(FileHeader));
+	cursor.seekp(BLOCK_SIZE * h.numBlocks, std::ios::beg);
+	// debug::print::state(cursor);
+	cursor.write(reinterpret_cast<const char*>(&h), SizeOf(FileHeader));
 	// debug::hl([&]() {
-	// 	debug::print::state(fs);
+	// 	debug::print::state(cursor);
 	// });
 }
 
@@ -138,16 +134,16 @@ Block::Block(File &f, OffType offset):
 
 void Block::cache()
 {
-	// debug::print::state(ffile.cursor());
-	ffile.cursor().seekg(offset, std::ios::beg);
+	// debug::print::state(ffile.cursor);
+	ffile.cursor.seekg(offset, std::ios::beg);
 	// BufferManager::getElemInfo(ffile.elemType()).size() * 
-	data = new char [BLOCK_SIZE]; ffile.cursor().read(data, BLOCK_SIZE);
+	data = new char [BLOCK_SIZE]; ffile.cursor.read(data, BLOCK_SIZE);
 }
 
 void Block::dump()
 {
-	ffile.cursor().seekp(offset, std::ios::beg);
-	ffile.cursor().write(data, BLOCK_SIZE); 
+	ffile.cursor.seekp(offset, std::ios::beg);
+	ffile.cursor.write(data, BLOCK_SIZE); 
 }
 
 void Block::release()

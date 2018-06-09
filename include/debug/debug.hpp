@@ -501,20 +501,20 @@ inline void ln(Args &&...args)
 template <typename _CharT, typename _Traits>
 inline void state(std::basic_istream<_CharT, _Traits> &s)
 {
-	ln("eof:", s.eof(), "fail:", s.fail(), "bad:", s.bad(), "g:", s.tellg());
+	ln("eof:", (int)s.eof(), "fail:", (int)s.fail(), "bad:", (int)s.bad(), "g:", (int)s.tellg());
 }
 
 template <typename _CharT, typename _Traits>
 inline void state(std::basic_ostream<_CharT, _Traits> &s)
 {
-	ln("eof:", s.eof(), "fail:", s.fail(), "bad:", s.bad(), "p:", s.tellp());
+	ln("eof:", (int)s.eof(), "fail:", (int)s.fail(), "bad:", (int)s.bad(), "p:", (int)s.tellp());
 }
 
 
 template <typename _CharT, typename _Traits>
 inline void state(std::basic_iostream<_CharT, _Traits> &s)
 {
-	ln("eof:", s.eof(), "fail:", s.fail(), "bad:", s.bad(), "g:", s.tellg(), "p:", s.tellp());
+	ln("eof:", (int)s.eof(), "fail:", (int)s.fail(), "bad:", (int)s.bad(), "g:", (int)s.tellg(), "p:", (int)s.tellp());
 }
 
 inline double time(const std::function<void()> &f)

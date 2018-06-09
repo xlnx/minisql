@@ -43,6 +43,11 @@ void Interpreter::interpret(const std::string &sql_insts)
 			std::cout << "minisql-interpreter" << e.what() << std::endl;
 		}
 	}
+	catch (InterpretError e)
+	{
+		std::cout << "minisql-interpreter: error: " << e.what() << std::endl;
+		isComplete = true;
+	}
 }
 	
 }

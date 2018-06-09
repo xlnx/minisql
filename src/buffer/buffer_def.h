@@ -37,6 +37,7 @@ using BufferElem = unsigned;
 using OffType = long long;
 using SizeType = int;
 using ItemIndex = int;
+using RefCount = ItemIndex;
 
 using ItemType = std::vector<BufferElem>;
 
@@ -47,5 +48,6 @@ using heap = std::vector<Args...>;
 
 using __buffer::ItemType;
 using __buffer::BufferElem;
+using __buffer::SizeType;
 
 }

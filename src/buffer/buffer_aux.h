@@ -129,7 +129,6 @@ public:
 class File final
 {
 	friend class BufferManager;
-	std::fstream fs;
 
 public:
 	File(BufferType type, const ItemType &elems, OffType offset, BufferType dataType);
@@ -138,12 +137,12 @@ public:
 
 	~File();
 
-	std::fstream &cursor() { return fs; }
-
 	void addBlock();
 
 	void writeHeader();
 public:
+	std::fstream cursor;
+
 	SizeType size = 0;
 	ItemType elems;
 	std::vector<SizeType> attrOffset;
@@ -152,10 +151,9 @@ public:
 	OffType offset;
 
 	std::vector<Block*> blocks;
-	std::vector<Item> items;
 	SizeType numDatas;
 	SizeType blockCapacity;
-	SizeType erased;
+	ItemIndex erased;
 
 	BufferType type;
 	BufferType dataType;
@@ -168,7 +166,8 @@ class BufferManager final
 	static std::vector<File*> files;
 	static heap<Block*> cachedBlocks;
 	static OffType offindex;
-	static SizeType erased;
+	static ItemIndex erased;
+	static std::fstream icursor;
 
 	friend class Attribute;
 	friend class Item;
@@ -198,6 +197,11 @@ public:
 	static BufferType registerBufferType(const ItemType &elems, BufferType dataType);
 	static void registerRoot(Item item);
 
+	static const ItemType &getItemType(BufferType type)
+	{
+		return files[type]->elems;
+	}
+
 	static Item insertItem(BufferType type, const ItemValue &data)
 	{
 		ItemIndex index;
@@ -221,6 +225,10 @@ public:
 	{
 		return doReadAttribute(*files[attr.item.type], read(attr.item.type, attr.item.index), attr.index);
 	}
+
+	// static void eraseItem(Item item);
+	static void removeRef(Item item);
+	static void addRef(Item item);
 };
 
 // query -> block=2/bid=2 -> file -> 
@@ -233,5 +241,6 @@ using __buffer::Item;
 using __buffer::Attribute;
 using __buffer::AttributeValue;
 using __buffer::ItemValue;
+using __buffer::NullType;
 
 }
