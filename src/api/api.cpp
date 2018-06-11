@@ -79,6 +79,69 @@ public:
 	}
 };
 
+void API::triv(const Expr &expr, std::map<std::string, VarRange> &varRange, bool topLevelAnd)
+{
+	using namespace __interpret;
+	if (auto unary = dynamic_cast<UnaryExprNode*>(expr.get()))
+	{
+		throw InterpretError("operator '" + unary->op + "' not allowed.");
+	}
+	else if (auto binary = dynamic_cast<BinaryExprNode*>(expr.get()))
+	{
+		static std::string no = "|^/*+-l%";
+		if (std::find(no.begin(), no.end(), binary->op[0]) == no.end() || 
+			binary->op == "<<" || 
+			binary->op == ">>")
+		{
+			throw InterpretError("operator '" + binary->op + "' not allowed.");
+		}
+		else if (binary->op == "&&")
+		{
+			
+		}
+		else if (binary->op[0] == '>')
+		{
+			if (binary->op.length() > 1)
+			{
+
+			}
+			else
+			{
+				
+			}
+		}
+		else if (binary->op[0] == '<')
+		{
+			if (binary->op.length() > 1)
+			{
+				
+			}
+			else
+			{
+				
+			}
+		}
+		else
+		{
+
+		}
+	}
+}
+
+BufferType API::cond2RangeFilter(
+	const ItemType &itemType,
+	const std::map<std::string, std::pair<BufferType, SizeType>> &attrs,
+	const Expr &cond,
+	std::pair<AttributeValue, AttributeValue> &range,
+	std::function<bool(const Item &)> &filter
+)
+{
+	std::map<std::string, VarRange> varRange;
+	triv(cond, varRange, true);
+	BufferType index_id = 0;
+	return index_id;
+}
+
 void API::select(
 	const std::string &tableName
 )
@@ -98,14 +161,11 @@ void API::select(
 		for (auto &e: props)
 		{
 			auto type = e.index_id;
+			auto no = e.attrno;
 		}
 		BufferType index_id = 0;
 		std::pair<AttributeValue, AttributeValue> range;
-		auto filter = [](Item item) -> bool
-		{
-			return true;
-		};
-		for (auto &e: IndexManager::queryData(index_id, range, filter))
+		for (auto &e: IndexManager::queryData(index_id, range, [](Item item) -> bool { return true; }))
 		{
 			auto &row = s.createRow();
 			auto val = BufferManager::readItem(e);
@@ -155,7 +215,62 @@ void API::select(
 	const Expr &cond
 )
 {
-	debug::print::ln("select rows from", tableName, "where cond");
+	// debug::print::ln("select * from", tableName);
+	int n;
+	auto sec = debug::time([&]{
+		Sheet s;
+		BufferType table_id = CatalogManager::getTableId(tableName);
+		auto &type = BufferManager::getItemType(table_id);
+		auto &newRow = s.createRow();
+		auto atname = CatalogManager::getAttributeNames(tableName);
+		for (auto &str: atname)
+		{
+			newRow.emplace_back(str);
+		}
+		for (auto &e: row)
+		{
+			if (std::find(atname.begin(), atname.end(), e) == atname.end()) 
+			{
+				throw InterpretError("table '" + tableName + "' has no attribute named '" + e + "'.");
+			}
+		}
+		auto props = CatalogManager::getIndexProperties(tableName);
+		std::map<std::string, std::pair<BufferType, SizeType>> attrs;
+		for (auto &e: props)
+		{
+			attrs[e.name] = std::make_pair(e.index_id, e.attrno);
+		}
+
+		std::pair<AttributeValue, AttributeValue> range;
+		std::function<bool(const Item &)> filter;
+		BufferType index_id = cond2RangeFilter(type, attrs, cond, range, filter);
+
+		for (auto &e: IndexManager::queryData(index_id, range, [](Item item) -> bool { return true; }))
+		{
+			auto &row = s.createRow();
+			auto val = BufferManager::readItem(e);
+			for (int i = 0; i != type.size(); ++i)
+			{
+				switch ((type[i] & 0xff0000) >> 16)
+				{
+					using namespace debug::strutil;
+					case 0x10: {		// SQL_INT
+						row.emplace_back(""_s + std::get<int>(val[i]));
+					} break;
+					case 0x20: {
+						row.emplace_back(std::get<std::string>(val[i]));
+					} break;
+					case 0x40: {
+						row.emplace_back(""_s + std::get<float>(val[i]));
+					} break;
+				}
+			}
+		}
+		n = s.size() - 1;
+		std::cout << s << std::endl;
+	});
+	using namespace debug::strutil;
+	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 void API::erase(

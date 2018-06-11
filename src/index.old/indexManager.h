@@ -31,36 +31,18 @@ namespace minisql
 			typedef std::pair<Value, Value> Pair;
 
 			struct Node {
-				Node() = default;
-				Node(Item item): item(item) {}
-
-				Item data() 
-					{ return *item[0]; }
-				void writeData(Item a)
-					{ BufferManager::writeAttribute(item[0], a); }
-				int count()
-					{ return std::get<int>(BufferManager::readAttribute(item[1])); }
-				void writeCount(int a)
-					{ BufferManager::writeAttribute(item[1], a); }
-				Node son()
-					{ return Node(*item[2]); }
-				void writeSon(Item a)
-					{ BufferManager::writeAttribute(item[2], a); }
-				Node next()
-					{ return Node(*item[3]); }
-				void writeNext(Item a)
-					{ BufferManager::writeAttribute(item[3], a); }
-					
+				Node(Item item):item(item) {}
+				Item Data();
+				int count();
+				void writeCount(int a);
+				Node son();
+				Node next();
+			private:
 				Item item;
 			};
-			static Node getHeadNode(Node now)
-			{
-				while (now.item[2] != nullptr)
-					now = now.son();
-				return now;
-			}
-			static void insertDataToCreateIndex(Item x,const BPlusTree &bplusTree);
-			static void cutNode(Node x,int index_id);
+			Node getHeadNode(Node root);
+			void insertDataToCreateIndex(Node x);
+			void cutNode(Node x);
 
 		public:
 			IndexManager();

@@ -1,5 +1,5 @@
 #include <index/indexManager.h>
-#include <index/bplusTree.h>
+#include <index/BPlusTree.h>
 
 namespace minisql
 {
@@ -64,20 +64,8 @@ namespace minisql
 			idToTree[index_id] = currentTree;
 
 
-			Node head = getHeadNode(idToTree[tablesToTrees[table_id][0]].root);
-
-			Node A{ head }, B;
-			for (;;) {
-				B = A.next();
-				for (int i = 0; i < A.count(); ++i) {
-					insertDataToCreateIndex(B.data(), currentTree);
-					B = B.next();
-				}
-				A = B;
-				if (A == nullptr)
-					break;
-			}
-			
+			//insert data
+			//
 			return index_id;
 		}
 
@@ -100,7 +88,7 @@ namespace minisql
 
 		bool IndexManager::insertData(int table_id, const ItemValue &values)
 		{
-			
+			//
 			return true;
 		}
 

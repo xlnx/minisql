@@ -39,6 +39,7 @@ using Column = std::unique_ptr<ColumnNode>;
 
 class ExprNode
 {
+	friend class API;
 public:
 	ExprNode() = default;
 	virtual ~ExprNode() = default;
@@ -74,6 +75,7 @@ class LiteralNode: public ExprNode
 	friend class UnaryExprNode;
 	friend class BinaryExprNode;
 	friend class IsExprNode;
+	friend class API;
 public:
 	// LiteralNode() = default;
 	LiteralNode():
@@ -94,7 +96,7 @@ public:
 	template <typename T>
 	bool is() const { return dynamic_cast<const T*>(value.get()); }
 	Value &getValue() { return value; }
-private:
+public:
 	Value value;
 };
 
@@ -106,16 +108,17 @@ Expr createLiteral(Args &&...args)
 
 class ColumnNode: public ExprNode
 {
+	friend class API;
 public:
 	ColumnNode(const std::string &name):
 		name(name)
 	{
 	}
 
-	std::string getName() const { return name; }
+	const std::string &getName() const { return name; }
 	
 	void write(std::ostream &os) const override;
-private:
+public:
 	std::string name;
 };
 
@@ -134,6 +137,7 @@ enum IsExprType
 class IsExprNode: public ExprNode
 {
 	friend class ExprNode;
+	friend class API;
 public:
 	IsExprNode(Expr &&l, bool inv, IsExprType isType):
 		lhs(std::move(l)), inv(inv), isType(isType)
@@ -152,7 +156,7 @@ public:
 	}
 
 	void write(std::ostream &os) const override;
-private:
+public:
 	Expr lhs;
 	bool inv;
 	IsExprType isType;
@@ -161,6 +165,7 @@ private:
 class UnaryExprNode: public ExprNode
 {
 	friend class ExprNode;
+	friend class API;
 public:
 	UnaryExprNode(const std::string &op, Expr &&r):
 		rhs(std::move(r)), op(op), callback(lookup[op])
@@ -178,7 +183,7 @@ public:
 	}
 
 	void write(std::ostream &os) const override;
-private:
+public:
 	Expr rhs;
 	std::string op;
 	const std::function<Value(const Value &)> &callback;
@@ -189,6 +194,7 @@ private:
 class BinaryExprNode: public ExprNode
 {
 	friend class ExprNode;
+	friend class API;
 public:
 	BinaryExprNode(Expr &&l, const std::string &op, Expr &&r):
 		lhs(std::move(l)), rhs(std::move(r)), op(op), callback(lookup[op])
@@ -206,7 +212,7 @@ public:
 	}
 
 	void write(std::ostream &os) const override;
-private:
+public:
 	Expr lhs, rhs;
 	std::string op;
 	const std::function<Value(const Value &, const Value &)> &callback;

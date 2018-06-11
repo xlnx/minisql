@@ -14,7 +14,8 @@ static void handler(int sig)
 	exit(0);
 }
 
-static volatile int _dummy_start = []{
+static volatile int _dummy_start = []
+{
 	puts("initializing minisql core...");
 	if (signal(SIGINT, handler) == SIG_ERR)
 	{
@@ -28,7 +29,8 @@ namespace minisql::__catalog
 
 std::map<std::string, TableInfo> CatalogManager::tableInfos;
 std::map<std::string, IndexInfo> CatalogManager::indexInfos;
-std::fstream CatalogManager::icursor = []{
+std::fstream CatalogManager::icursor = []
+{
 	std::fstream fs(SE_FNAME("~"), std::ios::binary | std::ios::in | std::ios::out);
 	if (!fs)
 	{
@@ -71,10 +73,12 @@ std::vector<File*> BufferManager::files;
 heap<Block*> BufferManager::cachedBlocks;
 OffType BufferManager::offindex;
 ItemIndex BufferManager::erased;
-std::fstream BufferManager::icursor = [] {
+std::fstream BufferManager::icursor = []
+{
 	std::fstream cur;
 	cur.open(SE_FNAME(""), std::ios::binary | std::ios::in | std::ios::out);
-	if (!cur) {
+	if (!cur) 
+	{
 		cur.open(SE_FNAME(""), std::ios::binary | std::ios::trunc | std::ios::out);
 		cur.seekp(0, std::ios::beg);
 		BufferManagerInfo info;
