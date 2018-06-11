@@ -122,6 +122,7 @@ class IndexManager
 	static void cutNode(Node x,int index_id);
 	static bool recursivelyInsert(
 		int table_id,
+		int &err,
 		const ItemValue &values,
 		const vector<int> &queue,
 		vector<int>::const_iterator &it
@@ -143,7 +144,7 @@ public:
 
 	//data operation
 	static std::vector<Item> queryData(int index_id, const Pair &range, const Filter &Filter);
-	static bool insertData(int table_id, const ItemValue &values);
+	static bool insertData(int table_id, const ItemValue &values, int &err);
 	static int deleteData(int index_id, const Pair &range, const Filter &filter);
 };
 

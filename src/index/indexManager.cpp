@@ -105,11 +105,11 @@ std::vector<Item> IndexManager::queryData(int index_id, const Pair &range, const
 	return std::vector<Item>();
 }
 
-bool IndexManager::insertData(int table_id, const ItemValue &values)
+bool IndexManager::insertData(int table_id, const ItemValue &values, int &err)
 {
 	vector<int> &targetTrees = tablesToTrees[table_id];
 	vector<int>::const_iterator it = targetTrees.begin();
-	return recursivelyInsert(values, targetTrees, it);
+	return recursivelyInsert(table_id, err, values, targetTrees, it);
 }
 
 int IndexManager::deleteData(int index_id, const Pair &range, const Filter &filter)
@@ -119,12 +119,14 @@ int IndexManager::deleteData(int index_id, const Pair &range, const Filter &filt
 }
 
 bool IndexManager::recursivelyInsert(
+	int table_id,
+	int &err,
 	const ItemValue &values,
 	const vector<int> &queue,
 	vector<int>::const_iterator &it)
 {
 	int index_id = *it;
-	std::stack<Node>Stack;
+	std::stack<Node> Stack;
 	BPlusTree bplusTree = idToTree[index_id];
 	Node root{ bplusTree.root };
 	Stack.push(root);
@@ -151,15 +153,15 @@ bool IndexManager::recursivelyInsert(
 	now = Stack.top();
 	if (now.haveData() && now.data()[bplusTree.attrno].val() == values[bplusTree.attrno]) {
 		//roll back******any thing else?
-
-		return 0;
+		err = bplusTree.attrno;
+		return false;
 	}
 
 	static Item x;
 	if (++it == queue.end())
-		x = BufferManager::insertItem(index_id, values);
+		x = BufferManager::insertItem(table_id, values);
 	else
-		if (!recursivelyInsert(values, queue, it))//recursively insert
+		if (!recursivelyInsert(table_id, err, values, queue, it))//recursively insert
 			return 0;
 
 	now.next(BufferManager::insertItem(index_id, {

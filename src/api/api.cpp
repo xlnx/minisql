@@ -375,6 +375,7 @@ void API::insert(
 	const std::vector<Value> &values
 )
 {
+	bool ok; int err;
 	auto sec = debug::time([&]
 	{
 		BufferType table_id = CatalogManager::getTableId(tableName);
@@ -402,10 +403,18 @@ void API::insert(
 				} break;
 			}
 		}
-		IndexManager::insertData(table_id, insertVal);
+		ok = IndexManager::insertData(table_id, insertVal, err);
 	});
 	using namespace debug::strutil;
-	debug::print::ln("Query OK", "("_s + sec + " sec)");
+	if (ok)
+	{
+		debug::print::ln("Query OK", "("_s + sec + " sec)");
+	}
+	else
+	{
+		auto attrs = CatalogManager::getAttributeNames(tableName);
+		debug::print::ln(std::string("Error: duplicate entry for index '") + attrs[err] + "'.");
+	}
 }
 
 void API::showTables()
