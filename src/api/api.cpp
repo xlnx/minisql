@@ -84,20 +84,27 @@ void API::triv(const Expr &expr, std::map<std::string, VarRange> &varRange, bool
 	using namespace __interpret;
 	if (auto unary = dynamic_cast<UnaryExprNode*>(expr.get()))
 	{
-		throw InterpretError("operator '" + unary->op + "' not allowed.");
+		throw InterpretError("operator '" + unary->op + "' not supported.");
 	}
 	else if (auto binary = dynamic_cast<BinaryExprNode*>(expr.get()))
 	{
 		static std::string no = "|^/*+-l%";
-		if (std::find(no.begin(), no.end(), binary->op[0]) == no.end() || 
+		if (std::find(no.begin(), no.end(), binary->op[0]) != no.end() || 
 			binary->op == "<<" || 
 			binary->op == ">>")
 		{
-			throw InterpretError("operator '" + binary->op + "' not allowed.");
+			throw InterpretError("operator '" + binary->op + "' not supported.");
 		}
 		else if (binary->op == "&&")
 		{
-			
+			if (topLevelAnd)
+			{
+				//
+			}
+			else
+			{
+				throw InterpretError("non-conjunctive and operator not supported.");
+			}
 		}
 		else if (binary->op[0] == '>')
 		{
@@ -297,6 +304,10 @@ void API::createTable(
 	{
 		std::string pk = "";
 		int pkid = -1;
+		if (CatalogManager::tableExist(table))
+		{
+			throw InterpretError("table named '" + table + "' already exists.");
+		}
 		for (auto i = 0; i != attrs.size(); ++i)
 		{
 			if (attrs[i].isPrimary)

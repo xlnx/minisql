@@ -494,7 +494,7 @@ template <typename ...Args>
 inline void ln(Args &&...args)
 {
 	using namespace visualize;
-	volatile int os[] = { (std::cout << args << " ", 0)... };
+	int os[] = { (std::cout << args << " ", 0)... };
 	std::cout << std::endl; 
 }
 

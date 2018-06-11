@@ -15,7 +15,7 @@ Attribute::Attribute(Item item, SizeType index):
 {
 }
 
-std::string Attribute::typeName() const
+const std::string Attribute::typeName() const
 {
 	return BufferManager::getTypeName(BufferManager::files[item.type]->elems[index]);
 }
@@ -36,17 +36,17 @@ std::ostream &operator << (std::ostream &os, const Attribute &attr)
 	return os << "}";
 }
 
-std::string Item::typeName() const
+const std::string Item::typeName() const
 {
 	return BufferManager::demangle(type);
 }
 
-Attribute Item::operator [] (std::size_t attrno)
+const Attribute Item::operator [] (std::size_t attrno) const 
 {
 	return Attribute(*this, attrno);
 }
 
-Attribute Item::attr (std::size_t attrno)
+const Attribute Item::attr (std::size_t attrno) const 
 {
 	return Attribute(*this, attrno);
 }

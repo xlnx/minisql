@@ -58,6 +58,7 @@ public:
 		const std::vector<TableAttribute> &attrs
 	);
 	static void removeTableInfo(const std::string &tableName);
+	static bool tableExist(const std::string &tableName);
 	static BufferType getTableId(const std::string &tableName);
 	static std::vector<std::string> getAttributeNames(const std::string &tableName);
 	static std::vector<std::string> getTableNames();
@@ -69,6 +70,7 @@ public:
 		const std::string &indexName
 	);
 	static void removeIndexInfo(const std::string &indexName);
+	static bool indexExist(const std::string &indexName);
 	static BufferType getIndexId(const std::string &indexName);
 	static SizeType getIndexAttribute(BufferType id);
 	static std::vector<std::string> getIndexNames();

@@ -117,6 +117,11 @@ BufferType CatalogManager::getTableId(const std::string &tableName)
 	}
 }
 
+bool CatalogManager::tableExist(const std::string &tableName)
+{
+	return tableInfos.count(tableName);
+}
+
 std::vector<std::string> CatalogManager::getAttributeNames(const std::string &tableName)
 {
 	std::vector<std::string> vec;
@@ -170,6 +175,11 @@ void CatalogManager::removeIndexInfo(const std::string &indexName)
 	{
 		throw InterpretError("index does not exist: " + indexName);
 	}
+}
+
+bool CatalogManager::indexExist(const std::string &tableName)
+{
+	return indexInfos.count(tableName);
 }
 
 BufferType CatalogManager::getIndexId(const std::string &indexName)

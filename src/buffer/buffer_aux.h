@@ -40,26 +40,26 @@ private:
 	ItemIndex index = SQL_NAP;
 	BufferType type = 0;
 public:
-	bool operator < (const Item &other) const
+	const bool operator < (const Item &other) const
 		{ return index < other.index; }
-	bool operator <= (const Item &other) const
+	const bool operator <= (const Item &other) const
 		{ return index <= other.index; }
-	bool operator > (const Item &other) const
+	const bool operator > (const Item &other) const
 		{ return index > other.index; }
-	bool operator >= (const Item &other) const
+	const bool operator >= (const Item &other) const
 		{ return index >= other.index; }
-	bool operator == (const Item &other) const
+	const bool operator == (const Item &other) const
 		{ return index == other.index; }
-	bool operator != (const Item &other) const
+	const bool operator != (const Item &other) const
 		{ return index != other.index; }
 
 	Item() = default;
 	Item(BufferType type, ItemIndex index): index(index), type(type) {}
 
-	Attribute operator [] (std::size_t attrno);
-	Attribute attr (std::size_t attrno);
+	const Attribute operator [] (std::size_t attrno) const;
+	const Attribute attr (std::size_t attrno) const;
 
-	std::string typeName() const;
+	const std::string typeName() const;
 
 	friend std::ostream &operator << (std::ostream &os, const Item &item);
 	friend std::ostream &operator << (std::ostream &os, const Attribute &attr);
@@ -76,22 +76,24 @@ private:
 
 	Attribute(Item item, SizeType index);
 public:
-	bool operator < (const Attribute &other) const
+	Attribute() = default;
+	
+	const bool operator < (const Attribute &other) const
 		{ return value < other.value; }
-	bool operator <= (const Attribute &other) const
+	const bool operator <= (const Attribute &other) const
 		{ return value <= other.value; }
-	bool operator > (const Attribute &other) const
+	const bool operator > (const Attribute &other) const
 		{ return value > other.value; }
-	bool operator >= (const Attribute &other) const
+	const bool operator >= (const Attribute &other) const
 		{ return value >= other.value; }
-	bool operator == (const Attribute &other) const
+	const bool operator == (const Attribute &other) const
 		{ return value == other.value; }
-	bool operator != (const Attribute &other) const
+	const bool operator != (const Attribute &other) const
 		{ return value != other.value; }
 
-	bool operator == (nullptr_t) const
+	const bool operator == (nullptr_t) const
 		{ return std::holds_alternative<NullType>(value); }
-	bool operator != (nullptr_t) const 
+	const bool operator != (nullptr_t) const 
 		{ return !std::holds_alternative<NullType>(value); }
 
 	const Item operator * () const
@@ -99,7 +101,13 @@ public:
 	const Item operator -> () const 
 		{ return this->operator*(); }
 
-	std::string typeName() const;
+	const std::string typeName() const;
+
+	operator const AttributeValue & () const
+		{ return value; }
+	
+	const AttributeValue &val() const
+		{ return value; }
 
 	friend std::ostream &operator << (std::ostream &os, const Attribute &attr);
 };
