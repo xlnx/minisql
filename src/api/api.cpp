@@ -80,7 +80,7 @@ public:
 };
 
 void API::triv(const Expr &expr, std::map<std::string, VarRange> &varRange, bool topLevelAnd)
-{
+{		// TODO: 
 	using namespace __interpret;
 	if (auto unary = dynamic_cast<UnaryExprNode*>(expr.get()))
 	{
@@ -151,7 +151,7 @@ BufferType API::cond2RangeFilter(
 
 void API::select(
 	const std::string &tableName
-)
+)		// TODO: 
 {
 	// debug::print::ln("select * from", tableName);
 	int n;
@@ -203,7 +203,7 @@ void API::select(
 void API::select(
 	const std::string &tableName, 
 	const Expr &cond
-)
+)		// TODO: 
 {
 	debug::print::ln("select * from", tableName, "where cond");
 }
@@ -211,7 +211,7 @@ void API::select(
 void API::select(
 	const std::string &tableName, 
 	const std::vector<std::string> &row
-)
+)		// TODO: 
 {
 	debug::print::ln("select row from", tableName);
 }
@@ -220,7 +220,7 @@ void API::select(
 	const std::string &tableName,
 	const std::vector<std::string> &row,
 	const Expr &cond
-)
+)		// TODO: 
 {
 	// debug::print::ln("select * from", tableName);
 	int n;
@@ -282,7 +282,7 @@ void API::select(
 
 void API::erase(
 	const std::string &tableName
-)
+)		// TODO: 
 {
 	debug::print::ln("delete from", tableName);
 }
@@ -290,7 +290,7 @@ void API::erase(
 void API::erase(
 	const std::string &tableName,
 	const Expr &cond
-)
+)		// TODO: 
 {
 	debug::print::ln("delete from", tableName, "where cond");
 }
@@ -346,8 +346,11 @@ void API::dropTable(
 )
 {
 	debug::print::ln("drop table", table);
-	auto sec = debug::time([&]{
+	auto sec = debug::time([&]
+	{
 		auto table_id = CatalogManager::getTableId(table);
+		IndexManager::dropAllIndex(table_id);
+		BufferManager::removeBufferType(table_id);
 		CatalogManager::removeTableInfo(table);
 	});
 	using namespace debug::strutil;
@@ -360,14 +363,63 @@ void API::createIndex(
 	const std::string &indexName
 )
 {
-	debug::print::ln("create index", indexName, "on", attr, "of", table);
+	auto sec = debug::time([&] 
+	{
+		std::string pk = "";
+		int pkid = -1;
+		auto attrs = CatalogManager::getAttributeProperties(table);
+		auto pos = -1;
+		for (int i = 0; i != attrs.size(); ++i)
+		{
+			if (attrs[i].name == attr)
+			{
+				if (attrs[i].isUnique)
+				{
+					pos = i;
+					break;
+				}
+				else if (attrs[i].isPrimary)
+				{
+					throw InterpretError("cannot create index for primary key '" + attr + "'.");
+				}
+				else 
+				{
+					throw InterpretError("attribute '" + attr + "' not ensured to be unique.");
+				}
+			}
+		}
+		if (pos == -1)
+		{
+			throw InterpretError("no attribute named '" + attr + "' in table '" + table + "'.");
+		}
+		for (auto &e: CatalogManager::getIndexProperties(table))
+		{
+			if (e.attrno == pos)
+			{
+				throw InterpretError("index named '" + e.name + "' for attribute '" + attr + "' already exists.");
+			}
+		}
+
+		auto table_id = CatalogManager::getTableId(table);
+		auto u = IndexManager::createIndex(table_id, pos);
+		CatalogManager::registerIndexInfo(table_id, u, pos, indexName);
+	});
+	using namespace debug::strutil;
+	debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::dropIndex(
 	const std::string &indexName
-)
+)		// TODO: 
 {
-	debug::print::ln("drop index", indexName);
+	auto sec = debug::time([&]
+	{
+		auto index_id = CatalogManager::getIndexId(indexName);
+		IndexManager::dropIndex(index_id);
+		CatalogManager::removeIndexInfo(indexName);
+	});
+	using namespace debug::strutil;
+	debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::insert(
@@ -435,7 +487,6 @@ void API::showTables()
 	using namespace debug::strutil;
 	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
-
 
 void API::showIndexs(const std::string &tableName)
 {

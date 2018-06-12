@@ -131,6 +131,7 @@ public:
 	char *data = nullptr;
 	OffType offset;
 	bool isModified = false;
+	bool isDeleted = false;
 };
 
 
@@ -155,7 +156,7 @@ public:
 	ItemType elems;
 	std::vector<SizeType> attrOffset;
 	// std::vector<void> attrDecoder;
-	ItemIndex next = SQL_NAP;
+	ItemIndex next = SQL_NULL;
 	OffType offset;
 
 	std::vector<Block*> blocks;
@@ -165,7 +166,6 @@ public:
 
 	BufferType type;
 	BufferType dataType;
-	bool valid;
 	Item root;
 };
 
@@ -204,6 +204,8 @@ public:
 	static BufferType registerBufferType(const ItemType &elems);
 	static BufferType registerBufferType(const ItemType &elems, BufferType dataType);
 	static void registerRoot(Item item);
+
+	static void removeBufferType(BufferType type);
 
 	static const ItemType &getItemType(BufferType type)
 	{

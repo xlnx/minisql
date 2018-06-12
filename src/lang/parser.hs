@@ -74,7 +74,7 @@ reflect([](AstType &ast){\
 			API::showTables();
 			return ValueType();
 		})
-	|"show"_t + "indexs"_t + "id"_t + ";"_t
+	|"show"_t + "indexes"_t + "id"_t + ";"_t
 		>> reflect([](AstType &ast) -> ValueType {
 			API::showIndexs(std::get<std::string>(ast.term(2)));
 			return ValueType();

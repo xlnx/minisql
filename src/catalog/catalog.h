@@ -61,6 +61,7 @@ public:
 	static bool tableExist(const std::string &tableName);
 	static BufferType getTableId(const std::string &tableName);
 	static std::vector<std::string> getAttributeNames(const std::string &tableName);
+	static std::vector<TableAttribute> getAttributeProperties(const std::string &tableName);
 	static std::vector<std::string> getTableNames();
 
 	static void registerIndexInfo(

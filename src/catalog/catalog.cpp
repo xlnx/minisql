@@ -231,4 +231,16 @@ std::vector<IndexProperty> CatalogManager::getIndexProperties(const std::string 
 	return vec;
 }
 
+std::vector<TableAttribute> CatalogManager::getAttributeProperties(const std::string &tableName)
+{
+	if (tableInfos.count(tableName))
+	{
+		return tableInfos[tableName].attrs;
+	}
+	else
+	{
+		throw InterpretError("table does not exist: " + tableName);
+	}
+}
+
 }

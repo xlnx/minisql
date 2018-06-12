@@ -40,7 +40,7 @@ static void open(std::fstream &fs, BufferType id, ItemIndex root)
 }
 
 File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset, BufferType dataType):
-	elems(elems), offset(offset), type(type), dataType(dataType), valid(true)
+	elems(elems), offset(offset), type(type), dataType(dataType)
 {
 	for (auto e: elems)
 	{
@@ -80,7 +80,7 @@ File::File(BufferType type, const std::vector<BufferElem> &elems, OffType offset
 }
 
 File::File(BufferType type, ItemIndex next, OffType offset, BufferType dataType):
-	next(next), offset(offset), type(type), dataType(dataType), valid(false)
+	next(next), offset(offset), type(type), dataType(dataType)
 {
 	blockCapacity = BLOCK_SIZE / size;
 	open(cursor, type, dataType == type ? SQL_NAP : SQL_NULL);
@@ -148,8 +148,15 @@ void Block::dump()
 
 void Block::release()
 {
-	if (isModified) { dump(); }
-	delete [] data; data = nullptr;
+	if (!isDeleted)
+	{
+		if (isModified) { dump(); }
+		delete [] data; data = nullptr;
+	}
+	else
+	{
+		delete data; delete this;
+	}
 }
 
 }

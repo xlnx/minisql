@@ -280,6 +280,17 @@ void BufferManager::addRef(Item item)
 	--*reinterpret_cast<RefCount*>(ptr + file.attrOffset.back());
 }
 
+void BufferManager::removeBufferType(BufferType type)
+{
+	for (auto block: files[type].blocks)
+	{
+		block->isDeleted = true;
+	}
+	files[type].blocks.resize(0);
+	files[type].next = erased;
+	erased = type;
+}
+
 BufferManager::BufferManager()
 {
 	std::ios::sync_with_stdio(false);
@@ -295,7 +306,7 @@ BufferManager::BufferManager()
 		cursor.seekg(- i * SizeOf(BufferTypeInfo) - SizeOf(BufferManagerInfo), std::ios::end);
 		offindex = OffType(cursor.tellg());
 		cursor.read(reinterpret_cast<char*>(&bi), SizeOf(BufferTypeInfo));
-		if (bi.next == SQL_NAP)
+		if (bi.next == SQL_NULL)
 		{
 			cursor.seekg(bi.offset, std::ios::beg);
 			elems.resize(bi.numTypes);
@@ -310,7 +321,7 @@ BufferManager::BufferManager()
 	std::vector<std::pair<int, AttributeValue>> rels;
 	for (auto file: files)
 	{
-		if (file->valid) 
+		if (file->next != SQL_NULL) 
 		{
 			if (file->dataType != file->type)
 			{

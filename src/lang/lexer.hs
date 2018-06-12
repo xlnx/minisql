@@ -45,7 +45,7 @@
 "on"_t = "on"_riw,
 "show"_t = "show"_riw,
 "tables"_t = "tables"_riw,
-"indexs"_t = "indexs"_riw,
+"indexes"_t = "indexes"_riw,
 
 "int"_t = "int"_riw,
 "float"_t = "float"_riw,

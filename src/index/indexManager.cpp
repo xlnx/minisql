@@ -40,7 +40,7 @@ void IndexManager::initialize(const vector<pair<int, AttributeValue>> &rels)
 
 void IndexManager::dropAllIndex(int table_id)
 {
-	// TODO: drop all indexs.
+	// TODO:
 }
 
 BufferType IndexManager::createIndex(int table_id, Attributeno attrno)
@@ -170,6 +170,7 @@ bool IndexManager::recursivelyInsert(
 		NullType(),
 		now.next()
 	}));
+	BufferManager::addRef(x);	// this node has a reference to x.
 	Stack.pop();
 	now = Stack.top();
 	now.count(now.count() + 1);
