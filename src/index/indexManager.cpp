@@ -25,7 +25,7 @@ void IndexManager::initialize(const vector<pair<int, AttributeValue>> &rels)
 	auto it = rels.begin();
 	for (int i = 0; it != rels.end(); ++it, ++i) {
 		int table = it->first;
-		if (table != i) {
+		if (table != i && table != SQL_NULL) {
 			treesToTables[i] = table;
 			//new a bplus tree with std::get<Item>(it->second)
 			idToTree[i] = { std::get<Item>(it->second),
@@ -40,7 +40,27 @@ void IndexManager::initialize(const vector<pair<int, AttributeValue>> &rels)
 
 void IndexManager::dropAllIndex(int table_id)
 {
-	// TODO:
+	
+	vector<int>& trees = tablesToTrees[table_id];
+	for (auto index_id: trees)
+	{
+		idToTree.erase(index_id);
+		treesToTables.erase(index_id);
+		BufferManager::removeBufferType(index_id);
+	}
+	tablesToTrees.erase(table_id);
+}
+
+Item IndexManager::createNode(BufferType index_id, const ItemValue &value)
+{
+	auto node = BufferManager::insertItem(index_id, value);
+	BufferManager::addRef(node);
+	return node;
+}
+
+void IndexManager::deleteNode(const Item &node)
+{
+	BufferManager::removeRef(node);
 }
 
 BufferType IndexManager::createIndex(int table_id, Attributeno attrno)
@@ -51,7 +71,7 @@ BufferType IndexManager::createIndex(int table_id, Attributeno attrno)
 		SQL_POINTER_NODE,	//son
 		SQL_POINTER_NODE	//next
 	}, table_id);
-	auto root = BufferManager::insertItem(index_id, {
+	auto root = createNode(index_id, {
 		NullType(),
 		0,
 		NullType(),
@@ -105,100 +125,13 @@ std::vector<Item> IndexManager::queryData(int index_id, const Pair &range, const
 	return std::vector<Item>();
 }
 
-bool IndexManager::insertData(int table_id, const ItemValue &values, int &err)
-{
-	vector<int> &targetTrees = tablesToTrees[table_id];
-	vector<int>::const_iterator it = targetTrees.begin();
-	return recursivelyInsert(table_id, err, values, targetTrees, it);
-}
-
 int IndexManager::deleteData(int index_id, const Pair &range, const Filter &filter)
 {
 	//
 	return 0;
 }
 
-bool IndexManager::recursivelyInsert(
-	int table_id,
-	int &err,
-	const ItemValue &values,
-	const vector<int> &queue,
-	vector<int>::const_iterator &it)
-{
-	int index_id = *it;
-	std::stack<Node> Stack;
-	BPlusTree bplusTree = idToTree[index_id];
-	Node root{ bplusTree.root };
-	Stack.push(root);
-	Node now, data;
-	//const ItemValue &value=x[bplusTree.attrno];
 
-	while (true) {
-		now = Stack.top();
-		if (now == nullptr)
-			break;
-		data = now;
-		for (int i = 0; i < now.count(); ++i) {
-			//if (value < xxxxxxxxxxxx)
-			auto next = data.next();
-			if (values[bplusTree.attrno] < next.data()[bplusTree.attrno].val())
-				break;
-			data = next;
-		}
-		Stack.push(data);
-		Stack.push(data.son());
-	}
-	Stack.pop();
-
-	now = Stack.top();
-	if (now.haveData() && now.data()[bplusTree.attrno].val() == values[bplusTree.attrno]) {
-		//roll back******any thing else?
-		err = bplusTree.attrno;
-		return false;
-	}
-
-	static Item x;
-	if (++it == queue.end())
-		x = BufferManager::insertItem(table_id, values);
-	else
-		if (!recursivelyInsert(table_id, err, values, queue, it))//recursively insert
-			return 0;
-
-	now.next(BufferManager::insertItem(index_id, {
-		x,//just a pointer to real data
-		-1,
-		NullType(),
-		now.next()
-	}));
-	BufferManager::addRef(x);	// this node has a reference to x.
-	Stack.pop();
-	now = Stack.top();
-	now.count(now.count() + 1);
-	Stack.pop();
-
-	while (!Stack.empty()) {
-		data = Stack.top();
-		Stack.pop();
-		now = Stack.top();
-		Stack.pop();
-		if (data.son().count() == M) {
-			cutNode(data, index_id);
-			now.count(now.count());
-		}
-	}
-	if (root.count() == M) {
-		root = BufferManager::insertItem(index_id, {
-			NullType(),
-			1,
-			root,
-			NullType()
-		});
-		cutNode(root, index_id);
-
-		BufferManager::registerRoot(root);//************************!!!!!!!!FBI WARNING!!!!!!
-	}
-	return true;
-}
 
 }
 

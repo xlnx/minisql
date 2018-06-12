@@ -121,12 +121,13 @@ class IndexManager
 	static void insertDataToCreateIndex(Item x, int index_id);
 	static void cutNode(Node x,int index_id);
 	static bool recursivelyInsert(
-		int table_id,
 		int &err,
 		const ItemValue &values,
 		const vector<int> &queue,
 		vector<int>::const_iterator &it
 	);
+	static Item createNode(BufferType index_id, const ItemValue &value);
+	static void deleteNode(const Item &node);
 public:
 	IndexManager();
 	~IndexManager();

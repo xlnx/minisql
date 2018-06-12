@@ -140,7 +140,7 @@ class File final
 	friend class BufferManager;
 
 public:
-	File(BufferType type, const ItemType &elems, OffType offset, BufferType dataType);
+	File(BufferType type, const ItemType &elems, OffType offset, BufferType dataType, bool force = false);
 
 	File(BufferType type, ItemIndex next, OffType offset, BufferType dataType);
 
@@ -149,6 +149,8 @@ public:
 	void addBlock();
 
 	void writeHeader();
+
+	void invalidate();
 public:
 	std::fstream cursor;
 
@@ -156,7 +158,7 @@ public:
 	ItemType elems;
 	std::vector<SizeType> attrOffset;
 	// std::vector<void> attrDecoder;
-	ItemIndex next = SQL_NULL;
+	ItemIndex next = SQL_NAP;
 	OffType offset;
 
 	std::vector<Block*> blocks;
@@ -166,6 +168,7 @@ public:
 
 	BufferType type;
 	BufferType dataType;
+	bool valid;
 	Item root;
 };
 

@@ -345,7 +345,6 @@ void API::dropTable(
 	const std::string &table
 )
 {
-	debug::print::ln("drop table", table);
 	auto sec = debug::time([&]
 	{
 		auto table_id = CatalogManager::getTableId(table);

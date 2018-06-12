@@ -28,30 +28,58 @@ struct BufferTypeInfo
 
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems)
 {
-	files.emplace_back(new File(BufferType(files.size()), elems, offindex, BufferType(files.size())));
+	BufferType id;
+	if (erased != SQL_NULL)
+	{
+		id = erased;
+		erased = files[id]->next;
+		delete files[id];
+		files[id] = new File(id, elems, offindex, id, true);
+	}
+	else
+	{
+		id = files.size();
+		files.emplace_back(new File(id, elems, offindex, id));
+	}
+	auto file = files[id];
 	offindex += SizeOf(BufferElem) * elems.size();
 	auto &cursor = icursor;
-	auto &file = *files.back();
-	cursor.seekp(file.offset, std::ios::beg);
-	// debug::print::ln(file.offset, cursor.tellg(), cursor.tellp());
-	// debug::print::mem(*reinterpret_cast<BufferElem(*)[4]>(&file.elems[0]));
-	cursor.write(reinterpret_cast<const char*>(&file.elems[0]), SizeOf(BufferElem) * file.elems.size());
+	cursor.seekp(file->offset, std::ios::beg);
+	cursor.write(reinterpret_cast<const char*>(&file->elems[0]), SizeOf(BufferElem) * file->elems.size());
 	writeIndex();
-	return BufferType(files.size() - 1);
+	return id;
 }
 
 BufferType BufferManager::registerBufferType(const std::vector<BufferElem> &elems, BufferType dataType)
 {
-	files.emplace_back(new File(BufferType(files.size()), elems, offindex, dataType));
+	BufferType id;
+	if (erased != SQL_NULL)
+	{
+		id = erased;
+		erased = files[id]->next;
+		delete files[id];
+		files[id] = new File(id, elems, offindex, dataType, true);
+	}
+	else
+	{
+		id = files.size();
+		files.emplace_back(new File(id, elems, offindex, dataType));
+	}
+	auto file = files[id];
 	offindex += SizeOf(BufferElem) * elems.size();
 	auto &cursor = icursor;
-	auto &file = *files.back();
-	cursor.seekp(file.offset, std::ios::beg);
-	// debug::print::ln(file.offset, cursor.tellg(), cursor.tellp());
-	// debug::print::mem(*reinterpret_cast<BufferElem(*)[4]>(&file.elems[0]));
-	cursor.write(reinterpret_cast<const char*>(&file.elems[0]), SizeOf(BufferElem) * file.elems.size());
+	cursor.seekp(file->offset, std::ios::beg);
+	cursor.write(reinterpret_cast<const char*>(&file->elems[0]), SizeOf(BufferElem) * file->elems.size());
 	writeIndex();
-	return BufferType(files.size() - 1);
+	return id;
+}
+
+void BufferManager::removeBufferType(BufferType type)
+{
+	files[type]->invalidate();
+	files[type]->next = erased;
+	erased = type;
+	writeIndex();
 }
 
 void BufferManager::registerRoot(Item item)
@@ -280,17 +308,6 @@ void BufferManager::addRef(Item item)
 	--*reinterpret_cast<RefCount*>(ptr + file.attrOffset.back());
 }
 
-void BufferManager::removeBufferType(BufferType type)
-{
-	for (auto block: files[type].blocks)
-	{
-		block->isDeleted = true;
-	}
-	files[type].blocks.resize(0);
-	files[type].next = erased;
-	erased = type;
-}
-
 BufferManager::BufferManager()
 {
 	std::ios::sync_with_stdio(false);
@@ -306,7 +323,7 @@ BufferManager::BufferManager()
 		cursor.seekg(- i * SizeOf(BufferTypeInfo) - SizeOf(BufferManagerInfo), std::ios::end);
 		offindex = OffType(cursor.tellg());
 		cursor.read(reinterpret_cast<char*>(&bi), SizeOf(BufferTypeInfo));
-		if (bi.next == SQL_NULL)
+		if (bi.next == SQL_NAP)
 		{
 			cursor.seekg(bi.offset, std::ios::beg);
 			elems.resize(bi.numTypes);
@@ -321,7 +338,7 @@ BufferManager::BufferManager()
 	std::vector<std::pair<int, AttributeValue>> rels;
 	for (auto file: files)
 	{
-		if (file->next != SQL_NULL) 
+		if (file->valid) 
 		{
 			if (file->dataType != file->type)
 			{
