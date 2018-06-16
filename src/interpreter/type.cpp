@@ -32,6 +32,8 @@ Value Type::operator ! () const
 	{ return !toNumber(); }
 Value Type::operator ~ () const
 	{ return ~toNumber(); }
+Value Type::operator - () const
+	{ return -toNumber(); }
 
 Value Type::operator == (const Value &other) const
 	{ return toNumber() == other->toNumber(); }

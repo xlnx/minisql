@@ -48,6 +48,16 @@ void Interpreter::interpret(const std::string &sql_insts)
 		std::cout << "minisql-interpreter: error: " << e.what() << std::endl;
 		isComplete = true;
 	}
+	catch (std::string f)
+	{
+		std::ifstream is(f);
+		std::string l, src;
+		while (std::getline(is, l))
+		{
+			src += l + "\n";
+		}
+		interpret(src);
+	}
 }
 	
 }

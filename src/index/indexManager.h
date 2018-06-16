@@ -34,6 +34,14 @@ public:
 	{
 		return std::get<Item>(BufferManager::readAttribute((*this)[0])); 
 	}
+	void data(NullType) const
+	{
+		BufferManager::writeAttribute((*this)[0], NullType());
+	}
+	void data(std::nullptr_t) const
+	{
+		BufferManager::writeAttribute((*this)[0], NullType());
+	}
 	void data(const Item &data) const 
 	{
 		BufferManager::writeAttribute((*this)[0], data);
@@ -126,8 +134,49 @@ class IndexManager
 		const vector<int> &queue,
 		vector<int>::const_iterator &it
 	);
-	static Item createNode(BufferType index_id, const ItemValue &value);
-	static void deleteNode(const Item &node);
+	template <typename A, typename B, typename C, typename D>
+	static Node createNode(BufferType index_id, const A &a, const B &b,
+		const C &c, const D &d)
+	{
+		Item node;
+		if constexpr (std::is_same<D, Node>::value)
+		{
+			if (d == nullptr)
+			{
+				node = BufferManager::insertItem(index_id, {
+					a, b, c, NullType()
+				});
+			}
+			else
+			{
+				node = BufferManager::insertItem(index_id, {
+					a, b, c, d
+				});
+			}
+		}
+		else
+		{
+			node = BufferManager::insertItem(index_id, {
+				a, b, c, d
+			});
+		}
+		BufferManager::addRef(node);
+		return node;
+	}
+	static void deleteNode(const Item &node)
+	{
+		BufferManager::removeRef(node);
+	}
+
+	static void recursivelydelete(
+		BPlusTree &bplusTree,
+		const Pair &range,
+		const Filter &filter
+	);
+	static void update_a(Node dumb, Node a, Node b);
+	static void update_b(Node dumb, Node &a, Node &b);
+	static void mergeLeaves(Node &dumb, Node &a, Node &b, Node &ason, Node &bson);
+	static void mergeNodes(Node &dumb, Node &a, Node &b, Node &ason, Node &bson);
 public:
 	IndexManager();
 	~IndexManager();

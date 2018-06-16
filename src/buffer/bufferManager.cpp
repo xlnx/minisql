@@ -251,7 +251,8 @@ AttributeValue BufferManager::doReadAttribute(File &file, char *dest, SizeType i
 		} break;
 		case 0x20: {
 			auto beg = dest + file.attrOffset[i];
-			return std::string(beg, beg + (file.elems[i] & 0x00ffff));
+			auto s = std::string(beg, beg + (file.elems[i] & 0x00ffff));
+			return s.substr(0, s.find('\0'));
 		} break;
 		case 0x80: {
 			auto idx = *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]);

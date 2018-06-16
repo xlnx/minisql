@@ -17,28 +17,26 @@ namespace __api
 
 class API
 {
-	struct Range
-	{
-		const Value *l, *r;
-		bool leq = false, req = false;
-	};
 	struct VarRange
 	{
 		std::vector<const Value*> eq;
 		std::vector<const Value*> neq;
-		Range range;
+		std::pair<const Value*, const Value*> range
+			= std::make_pair(nullptr, nullptr);
 	};
 
 	static void triv(
 		const Expr &e, 
 		std::map<std::string, VarRange> &range,
-		bool topLevelAnd
+		bool &eval
 	);
 
 	static BufferType cond2RangeFilter(
 		const ItemType &itemType,
-		const std::map<std::string, std::pair<BufferType, SizeType>> &attrs,
+		std::map<std::string, std::pair<BufferType, SizeType>> &indexes,
+		const std::vector<std::string> &attrs,
 		const Expr &cond,
+		bool &eval,
 		std::pair<AttributeValue, AttributeValue> &range,
 		std::function<bool(const Item &)> &filter
 	);

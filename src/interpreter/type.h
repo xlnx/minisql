@@ -47,6 +47,7 @@ public:
 
 	virtual Value operator ! () const;
 	virtual Value operator ~ () const;
+	virtual Value operator - () const;
 
 	virtual Value operator == (const Value &other) const;
 	virtual Value operator != (const Value &other) const;
@@ -83,6 +84,7 @@ inline Value operator >> (const Value &lhs, const Value &rhs) { return *lhs >> r
 
 inline Value operator ! (const Value &rhs) { return !*rhs; }
 inline Value operator ~ (const Value &rhs) { return ~*rhs; }
+inline Value operator - (const Value &rhs) { return -*rhs; }
 
 inline Value operator == (const Value &lhs, const Value &rhs) { return *lhs == rhs; }
 inline Value operator != (const Value &lhs, const Value &rhs) { return *lhs != rhs; }
@@ -176,6 +178,8 @@ public:
 		{ return std::make_unique<Number>(double(~(long long)value)); }
 	Value operator ! () const
 		{ return std::make_unique<Number>(!value); }
+	Value operator - () const
+		{ return std::make_unique<Number>(-value); }
 
 	virtual Value operator == (const Number &other) const
 		{ return std::make_unique<Number>(value == other.value); }

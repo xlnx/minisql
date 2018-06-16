@@ -26,31 +26,32 @@ static Value like(const Value &lhs, const Value &rhs)
 
 std::map<std::string, std::function<Value(const Value &, const Value &)>> 
 	BinaryExprNode::lookup = {
-	{ "+", operator + },
-	{ "-", operator - },
-	{ "*", operator * },
-	{ "/", operator / },
-	{ "%", operator % },
-	{ "|", operator | },
-	{ "&", operator & },
-	{ "^", operator ^ },
-	{ "<<", [](const Value &l, const Value &r){ return l << r; } },
-	{ ">>", operator >> },
+		{ "+", operator + },
+		{ "-", [](const Value &l, const Value &r){ return l - r; } },
+		{ "*", operator * },
+		{ "/", operator / },
+		{ "%", operator % },
+		{ "|", operator | },
+		{ "&", operator & },
+		{ "^", operator ^ },
+		{ "<<", [](const Value &l, const Value &r){ return l << r; } },
+		{ ">>", operator >> },
 	{ "==", operator == },
 	{ "!=", operator != },
 	{ ">", operator > },
 	{ "<", operator < },
 	{ ">=", operator >= },
 	{ "<=", operator <= },
-	{ "&&", operator && },
-	{ "||", operator || },
-	{ "like", like }
+		{ "&&", operator && },
+		{ "||", operator || },
+		{ "like", like }
 };
 
 std::map<std::string, std::function<Value(const Value &)>> 
 	UnaryExprNode::lookup = {
 	{ "!", operator ! },
-	{ "~", operator ~ }
+	{ "~", operator ~ },
+	{ "-", [](const Value &e) { return -e; } }
 };
 
 Expr createExpr(Expr &&lhs, const std::string &op, Expr &&rhs)

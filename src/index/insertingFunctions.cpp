@@ -16,48 +16,53 @@ void IndexManager::cutNode(Node data, int index_id)
 		tail = tail.next();
 	if (now.son() == nullptr)
 	{
-		tail.next(createNode(index_id, {
+		auto newDumb = createNode(index_id, 
 			NullType(),
 			(M + 1) >> 1,
 			NullType(),
 			tail.next()
-		}));
-		data.next(createNode(index_id, {
-			tail.next().next().data(),
+		);
+		tail.next(newDumb);
+		auto newNode = createNode(index_id, 
+			newDumb.next().data(),
 			-1,
-			tail.next(),
+			newDumb,
 			data.next()
-		}));
+		);
+		BufferManager::addRef(newDumb.next().data());
+		data.next(newNode);
 	}
 	else
 	{
-		data.next(createNode(index_id, {
-			tail.next().data(),
+		auto next = tail.next();
+		auto newNode = createNode(index_id, 
+			next.data(),
 			-1,
-			tail.next(),
+			next,
 			data.next()
-		}));
-		tail.next().count((M - 1) >> 1);
-		// tail.next().data() = 0;
+		);
+		data.next(newNode);
+		next.count((M - 1) >> 1);
+		next.data(nullptr);
 	}
 }
 
 void IndexManager::insertDataToCreateIndex(Item x, int index_id)
 {
 	std::stack<Node>Stack;
-	BPlusTree bplusTree = idToTree[index_id];
+	BPlusTree &bplusTree = idToTree[index_id];
 	Node root{ bplusTree.root };
 	Stack.push(root);
 	Node now, data;
 	//const ItemValue &value=x[bplusTree.attrno];
 
-	while (true) 
+	while (true)
 	{
 		now = Stack.top();
 		if (now == nullptr)
 			break;
 		data = now;
-		for (int i = 0; i < now.count(); ++i) 
+		for (int i = 0; i < now.count(); ++i)
 		{
 			//if (value < xxxxxxxxxxxx)
 			if (x[bplusTree.attrno] < data.next().data()[bplusTree.attrno])
@@ -71,38 +76,40 @@ void IndexManager::insertDataToCreateIndex(Item x, int index_id)
 
 	now = Stack.top();
 
-	now.next(createNode(index_id, {
+	now.next(createNode(index_id,
 		x,//just a pointer to real data
 		-1,
 		NullType(),
 		now.next()
-	}));
+	));
+	BufferManager::addRef(x);
 	Stack.pop();
 	now = Stack.top();
 	now.count(now.count() + 1);
 	Stack.pop();
 
-	while (!Stack.empty()) 
+	while (!Stack.empty())
 	{
 		data = Stack.top();
 		Stack.pop();
 		now = Stack.top();
 		Stack.pop();
-		if (data.son().count() == M) 
+		if (data.son().count() == M)
 		{
-			cutNode(data,index_id);
+			cutNode(data, index_id);
 			now.count(now.count());
 		}
 	}
-	if (root.count() == M) 
+	if (root.count() == M)
 	{
-		root = createNode(index_id, {
+		root = createNode(index_id,
 			NullType(),
 			1,
 			root,
 			NullType()
-		});
-		cutNode(root,index_id);
+		);
+		cutNode(root, index_id);
+		bplusTree.root = root;
 		BufferManager::registerRoot(root);
 	}
 }
@@ -114,7 +121,7 @@ bool IndexManager::recursivelyInsert(
 {
 	int index_id = *it;
 	std::stack<Node> Stack;
-	BPlusTree bplusTree = idToTree[index_id];
+	BPlusTree &bplusTree = idToTree[index_id];
 	Node root{ bplusTree.root };
 	Stack.push(root);
 	Node now, data;
@@ -151,12 +158,12 @@ bool IndexManager::recursivelyInsert(
 		if (!recursivelyInsert(err, values, queue, it))//recursively insert
 			return 0;
 
-	now.next(createNode(index_id, {
+	now.next(createNode(index_id,
 		x,//just a pointer to real data
 		-1,
 		NullType(),
 		now.next()
-	}));
+	));
 	BufferManager::addRef(x);	// this node has a reference to x.
 	Stack.pop();
 	now = Stack.top();
@@ -174,14 +181,14 @@ bool IndexManager::recursivelyInsert(
 		}
 	}
 	if (root.count() == M) {
-		root = createNode(index_id, {
+		root = createNode(index_id,
 			NullType(),
 			1,
 			root,
 			NullType()
-		});
+		);
 		cutNode(root, index_id);
-
+		bplusTree.root = root;
 		BufferManager::registerRoot(root);//************************!!!!!!!!FBI WARNING!!!!!!
 	}
 	return true;
@@ -191,7 +198,7 @@ bool IndexManager::insertData(int table_id, const ItemValue &values, int &err)
 {
 	vector<int> &targetTrees = tablesToTrees[table_id];
 	vector<int>::const_iterator it = targetTrees.begin();
-	return recursivelyInsert( err, values, targetTrees, it);
+	return recursivelyInsert(err, values, targetTrees, it);
 }
 
 }

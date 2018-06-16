@@ -65,8 +65,9 @@ reflect([](AstType &ast){\
 			std::cout << "See you next time! >w<" << std::endl;
 			exit(0); return ValueType();
 		})
-	|"execfile"_t + ";"_t
+	|"execfile"_t + "string"_t + ";"_t
 		>> reflect([](AstType &ast) -> ValueType {
+			throw std::get<std::string>(ast.term(1));
 			return ValueType();
 		})
 	|"show"_t + "tables"_t + ";"_t
