@@ -279,7 +279,7 @@ BufferType API::cond2RangeFilter(
 			}
 			case 0x20: {
 				range.first = std::string("");
-				range.first = std::string(260, '\x7f');
+				range.second = std::string(260, '\x7f');
 				if (varRange.count(at))
 				{
 					if (varRange[at].range.first)

@@ -246,8 +246,11 @@ out:
 	BufferManager::registerRoot(root);//************************!!!!!!!!FBI WARNING!!!!!!
 	bplusTree.root = root;//***************fbi warning,insertingfunctions.cpp
 
-	for (int i = 0; i < trees.size(); ++i)
-		recursivelydelete(idToTree[trees[i]], ranges[i], filter);
+	for (int i = 0; i < trees.size(); ++i) {
+		if (trees[i] != index_id) {
+			recursivelydelete(idToTree[trees[i]], ranges[i], filter);
+		}
+	}
 
 	return counter;
 	//register root

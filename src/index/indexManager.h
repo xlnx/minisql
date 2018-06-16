@@ -87,7 +87,14 @@ public:
 	} 
 	void next(const Node &node) const 
 	{
-		BufferManager::writeAttribute((*this)[3], node);
+		if (node.isNull)
+		{
+			BufferManager::writeAttribute((*this)[3], NullType());
+		}
+		else
+		{
+			BufferManager::writeAttribute((*this)[3], node);
+		}
 	}
 
 	operator bool() const
