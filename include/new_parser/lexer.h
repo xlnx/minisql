@@ -102,7 +102,6 @@ public:
 	}
 	value_type next()
 	{
-		static std::regex st("\"(?:[^\\\"\\\\]|\\\\.)*\"", std::regex::nosubs | std::regex::optimize);
 		static auto str_val = "string"_t.value;
 
 		// static std::regex id("[A-Za-z_]\\w*", std::regex::nosubs | std::regex::optimize);
