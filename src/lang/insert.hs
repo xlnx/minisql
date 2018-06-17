@@ -10,7 +10,7 @@
 "value_list"_p =
 	"value_list"_p + ","_t + "expr"_p
 		>> reflect([](AstType &ast) -> ValueType {
-			auto V = std::get<std::vector<Value>>(ast[0].gen());
+			auto V = std::move(std::get<std::vector<Value>>(ast[0].gen()));
 			auto v = std::move(std::get<Expr>(ast[1].gen()));
 			if (auto ptr = dynamic_cast<LiteralNode*>(v.get()))
 				V.emplace_back(std::move(ptr->getValue()));

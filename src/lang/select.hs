@@ -25,43 +25,22 @@
 	|"select_exprs"_p
 		>> Pass(),
 
-"cond"_p =
-	"id"_t
-		>> reflect([](AstType &ast) -> ValueType {
-			std::cerr << "id" << std::endl;
-			return ValueType();
-		})
-	|"number"_t
-		>> reflect([](AstType &ast) -> ValueType {
-			std::cerr << "number" << std::endl;
-			return ValueType();
-		})
-	|"expr"_p
-		>> reflect([](AstType &ast) -> ValueType {
-			std::cerr << "expr" << std::endl;
-			return ast[0].gen();
-		}),
-
 "inst_select"_p =
-	"select"_t + "select_exprs"_p
-		>> reflect([](AstType &ast) -> ValueType {
-			return ValueType();
-		})
-	|"select"_t + "select_exprs_unqualified"_p + "from"_t + "table_references"_p
+	"select"_t + "select_exprs_unqualified"_p + "from"_t + "id"_t
 		>> reflect([](AstType &ast) -> ValueType {
 			auto select_exprs = ast[0].gen();
-			auto table = std::get<std::string>(ast[1].gen());
+			auto table = std::get<std::string>(ast.term(2));
 			if (std::holds_alternative<Flag>(select_exprs))
 				API::select(table);
 			else
 				API::select(table, std::get<std::vector<std::string>>(select_exprs));
 			return ValueType();
 		})
-	|"select"_t + "select_exprs_unqualified"_p + "from"_t + "table_references"_p + "where"_t + "expr"_p
+	|"select"_t + "select_exprs_unqualified"_p + "from"_t + "id"_t + "where"_t + "expr"_p
 		>> reflect([](AstType &ast) -> ValueType {
 			auto select_exprs = ast[0].gen();
-			auto table = std::get<std::string>(ast[1].gen());
-			auto cond = std::move(std::get<Expr>(ast[2].gen()));
+			auto table = std::get<std::string>(ast.term(2));
+			auto cond = std::move(std::get<Expr>(ast[1].gen()));
 			if (std::holds_alternative<Flag>(select_exprs))
 				API::select(table, cond);
 			else

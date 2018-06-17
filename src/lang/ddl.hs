@@ -1,10 +1,3 @@
-"create_table"_p = 
-	"create"_t + "table"_t + "id"_t + "("_t + "create_contents"_p + ")"_t 
-		>> reflect([](AstType &ast) -> ValueType {
-			API::createTable(std::get<std::string>(ast.term(2)), 
-				std::get<std::vector<TableAttribute>>(ast[0].gen()));
-			return ValueType();
-		}),
 "create_type"_p = 
 	"int"_t 
 		>> reflect([](AstType &ast) -> ValueType {
@@ -79,8 +72,12 @@
 			return M;
 		}),
 "inst_ddl"_p = 
-	"create_table"_p
-		>> Pass()
+	"create"_t + "table"_t + "id"_t + "("_t + "create_contents"_p + ")"_t 
+		>> reflect([](AstType &ast) -> ValueType {
+			API::createTable(std::get<std::string>(ast.term(2)), 
+				std::get<std::vector<TableAttribute>>(ast[0].gen()));
+			return ValueType();
+		})
 	|"drop"_t + "table"_t + "id"_t
 		>> reflect([](AstType &ast) -> ValueType {
 			API::dropTable(std::get<std::string>(ast.term(2)));
