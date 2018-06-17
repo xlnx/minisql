@@ -51,15 +51,17 @@ void Interpreter::interpret(const std::string &sql_insts)
 	catch (std::string f)
 	{
 		std::ifstream is(f);
-		std::string l, src;
-		while (std::getline(is, l))
-		{
-			src += l + "\n";
-		}
 		API::doPrint = false;
-		auto sec = debug::time([&]
+		auto sec = debug::time([&,this]
 		{
-			interpret(src);
+			std::string pre = "", l;
+			while (getline(is, l))
+			{
+				if ([&,this]{interpret(pre + l); return complete();}())
+					{pre = "";}
+				else
+					{pre += l + "\n";}
+			}
 		});
 		std::ostringstream os;
 		os << std::dec << sec;

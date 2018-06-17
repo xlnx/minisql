@@ -524,7 +524,14 @@ public:
 				if (match(new_asts.top().second)) break;
 			}
 		} while (1);
-		ast_stack.front()->gen();
+		try
+		{
+			ast_stack.front()->gen();
+		}
+		catch (...)
+		{
+			std::rethrow_exception(std::current_exception());
+		}
 	}
 };
 
