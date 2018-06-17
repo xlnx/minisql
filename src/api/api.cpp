@@ -468,7 +468,7 @@ void API::select(
 		std::cout << s << std::endl;
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 void API::select(
@@ -509,7 +509,7 @@ void API::select(
 		std::cout << s << std::endl;
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 void API::select(
@@ -589,7 +589,7 @@ void API::select(
 		std::cout << s << std::endl;
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 void API::select(
@@ -638,7 +638,7 @@ void API::select(
 		std::cout << s << std::endl;
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 void API::erase(
@@ -700,7 +700,7 @@ void API::erase(
 		n = IndexManager::deleteData(index_id, range, [](const Item &){ return true; });
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows affected", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows affected", "("_s + sec + " sec)");
 }
 
 void API::erase(
@@ -737,7 +737,7 @@ void API::erase(
 		}
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows affected", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows affected", "("_s + sec + " sec)");
 }
 
 void API::createTable(
@@ -783,7 +783,7 @@ void API::createTable(
 		CatalogManager::registerIndexInfo(t, u, pkid, pk);
 	});
 	using namespace debug::strutil;
-	debug::print::ln("Query OK", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::dropTable(
@@ -802,7 +802,7 @@ void API::dropTable(
 		}
 	});
 	using namespace debug::strutil;
-	debug::print::ln("Query OK", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::createIndex(
@@ -853,7 +853,7 @@ void API::createIndex(
 		CatalogManager::registerIndexInfo(table_id, u, pos, indexName);
 	});
 	using namespace debug::strutil;
-	debug::print::ln("Query OK", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::dropIndex(
@@ -867,7 +867,7 @@ void API::dropIndex(
 		CatalogManager::removeIndexInfo(indexName);
 	});
 	using namespace debug::strutil;
-	debug::print::ln("Query OK", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
 }
 
 void API::insert(
@@ -908,7 +908,7 @@ void API::insert(
 	using namespace debug::strutil;
 	if (ok)
 	{
-		debug::print::ln("Query OK", "("_s + sec + " sec)");
+		if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
 	}
 	else
 	{
@@ -933,7 +933,7 @@ void API::showTables()
 		std::cout << s << std::endl;
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 void API::showIndexs(const std::string &tableName)
@@ -950,7 +950,7 @@ void API::showIndexs(const std::string &tableName)
 		std::cout << s << std::endl;
 	});
 	using namespace debug::strutil;
-	debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
+	if (doPrint) debug::print::ln(n, "rows in set", "("_s + sec + " sec)");
 }
 
 }

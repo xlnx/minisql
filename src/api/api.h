@@ -41,6 +41,8 @@ class API
 		std::function<bool(const Item &)> &filter
 	);
 public:
+	static bool doPrint;
+
 	static void select(
 		const std::string &tableName
 	);

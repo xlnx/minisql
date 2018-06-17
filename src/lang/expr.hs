@@ -85,23 +85,6 @@
 		>> reflect([](AstType &ast) -> ValueType {
 			return createExpr(eval(0), "!=", eval(1));
 		})
-	|"expr6"_p + "is"_t + "not|bool|null"_p
-		>> reflect([](AstType &ast) -> ValueType {
-			auto p = std::get<std::pair<bool, IsExprType>>(ast[1].gen());
-			return createExpr(eval(0), p.first, p.second);
-		})
-	|"expr6"_p + "like"_t + "expr7"_p
-		>> reflect([](AstType &ast) -> ValueType {
-			return createExpr(eval(0), "like", eval(1));
-		})
-	|"expr6"_p + "regexp"_t + "expr7"_p
-		>> reflect([](AstType &ast) -> ValueType {
-			return createExpr(eval(0), "regexp", eval(1));
-		})
-	|"expr6"_p + "in"_t + "expr7"_p
-		>> reflect([](AstType &ast) -> ValueType {
-			return createExpr(eval(0), "in", eval(1));
-		})
 	|"expr7"_p
 		>> Pass(),
 "expr7"_p = 

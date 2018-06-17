@@ -362,7 +362,7 @@ BufferManager::~BufferManager()
 {
 	for (auto block: cachedBlocks)
 	{
-		debug::print::ln(block);
+		// debug::print::ln(block);
 		block->release();
 	}
 	for (auto f: files)

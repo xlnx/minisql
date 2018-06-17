@@ -1,5 +1,7 @@
 #pragma once			// lexer.h
+
 #include "lexer_initializer.h"
+#include <algorithm>
 #include <set>
 #include <vector>
 #include <map>
@@ -100,22 +102,115 @@ public:
 	}
 	value_type next()
 	{
+		static std::regex st("\"(?:[^\\\"\\\\]|\\\\.)*\"", std::regex::nosubs | std::regex::optimize);
+		static auto str_val = "string"_t.value;
+
+		// static std::regex id("[A-Za-z_]\\w*", std::regex::nosubs | std::regex::optimize);
+		static auto id_val = "id"_t.value;
+
+		static std::regex key("insert|into|values|select|from|where|true|false|null|or|xor|and|not|quit|execfile|"
+			"create|table|unique|primary|key|drop|delete|index|on|show|tables|indexes|int|float|char|mod|div", 
+				std::regex::nosubs | std::regex::optimize);
+
+		static std::regex num("\\d*\\.\\d+|\\d+\\.\\d*|\\d+(?:[eE]-?\\d+)?", std::regex::nosubs | std::regex::optimize);
+		static auto num_val = "number"_t.value;
+		
+		static std::regex oper("<<|>>|-|\\+|\\*|\\/|%|\\^|&&|\\|\\||&|,|>=|<=|!=|<>|>|<|=|:=|;|\\(|\\)|~|!");
+
 		if (*iter)
 		{
-			std::match_results<const CharT*> result;
-			for (const auto& rule: rules)
+			if (*iter == '"' || *iter == '\'' || *iter == '`')
 			{
-				if (std::regex_search(iter, result, rule.mode, std::regex_constants::match_continuous))
+				char c = *iter;
+				auto it = iter + 1;
+				while (*it && *it != c)
 				{
+					it++;
+				}
+				if (*it)
+				{
+					it++;
 					unsigned row = lines.size() - 1;
+					std::swap(iter, it);
 					auto q = iter;
-					while (iter != result.suffix().first)
-							if (*iter++ == '\n') lines.push_back(iter); 
 					while (*iter && spaces.find_first_of(*iter) != string_type::npos)
 							if (*iter++ == '\n') lines.push_back(iter); 
-					string_type res = result[0];
-					return { rule.value, res, row, unsigned(q - &lines[row][0]) };
+					return { str_val, std::string(it + 1, q - 1), row, unsigned(q - &lines[row][0]) };
 				}
+			}
+			else if (*iter >= 'a' && *iter <= 'z' || *iter >= 'A' && *iter <= 'Z')
+			{
+				auto it = iter + 1;
+				while (*it >= 'a' && *it <= 'z' || *it >= 'A' && *it <= 'Z' || *it >= '0' && *it <= '9')
+				{
+					it++;
+				}
+				std::string res(iter, it);
+				std::transform(iter, it, res.begin(), ::tolower);
+				unsigned row = lines.size() - 1;
+				std::swap(iter, it);
+				while (*iter && spaces.find_first_of(*iter) != string_type::npos)
+						if (*iter++ == '\n') lines.push_back(iter); 
+				if (std::regex_match(res, key))
+				{
+					return { operator ""_t(res.c_str(), res.size()).value, res, row, unsigned(it - &lines[row][0]) };
+				}
+				else
+				{
+					return { id_val, res, row, unsigned(it - &lines[row][0]) };
+				}
+			}
+			else if (*iter >= '0' && *iter <= '9')
+			{
+				auto it = iter;
+				while (*it >= '0' && *it <= '9' || *it == '.')
+				{
+					it++;
+				}
+				std::string res(iter, it);
+				unsigned row = lines.size() - 1;
+				std::swap(iter, it);
+				while (*iter && spaces.find_first_of(*iter) != string_type::npos)
+						if (*iter++ == '\n') lines.push_back(iter); 
+				return { num_val, res, row, unsigned(it - &lines[row][0]) };
+			}
+			else
+			{
+				auto len = 1;
+				switch (*iter)
+				{
+					case '>': {
+						if (iter[1] == '=' || iter[1] == '>')
+						{
+							len = 2;
+						}
+					} break;
+					case '<': {
+						if (iter[1] == '=' || iter[1] == '<' || iter[1] == '>') 
+						{
+							len = 2;
+						}
+					} break;
+					case '!': case ':': {
+						if (iter[1] == '=')
+						{
+							len = 2;
+						}
+					} break;
+					case '&': case '|': {
+						if (iter[1] == *iter)
+						{
+							len = 2;
+						}
+					} break;
+				}
+				std::string res(iter, iter + len);
+				unsigned row = lines.size() - 1;
+				auto it = iter;
+				iter += len;
+				while (*iter && spaces.find_first_of(*iter) != string_type::npos)
+						if (*iter++ == '\n') lines.push_back(iter); 
+				return { operator ""_t(res.c_str(), res.size()).value, res, row, unsigned(it - &lines[row][0]) };
 			}
 			auto itr = iter;
 			auto iter_ln = itr;

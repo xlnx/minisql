@@ -1,5 +1,6 @@
 #include <buffer/buffer_aux.h>
 #include <index/indexManager.h>
+#include <api/api.h>
 #include <catalog/catalog.h>
 #include <index/bplusTree.h>
 #include <signal.h>
@@ -11,6 +12,7 @@
 // when this obj is linked, the minisql runtime is injected.
 static void handler(int sig)
 {
+	debug::print::ln("See you next time! >w<");
 	exit(0);
 }
 
@@ -23,6 +25,13 @@ static volatile int _dummy_start = []
 	}
 	return 0;
 } ();
+
+namespace minisql::__api
+{
+
+bool API::doPrint = true;
+
+}
 
 namespace minisql::__catalog
 {

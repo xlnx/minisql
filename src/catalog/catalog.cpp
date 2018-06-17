@@ -17,7 +17,7 @@ CatalogManager::CatalogManager()
 	auto s = new char[size + 1]; s[size] = 0;
 	fs.read(s, size);
 	Json::Reader reader;
-	debug::print::ln(s);
+	// debug::print::ln(s);
 	Json::Value root;
 	reader.parse(s, root);
 	delete [] s;
@@ -47,14 +47,11 @@ CatalogManager::CatalogManager()
 	for (auto itr = index.begin(); itr != index.end(); ++itr)
 	{
 		auto &e = *itr;
-		indexInfos.emplace(
-			itr.key().asString(),
-			IndexInfo {
-				BufferType(e["table"].asUInt()),
-				BufferType(e["type"].asUInt()),
-				SizeType(e["attrno"].asUInt())
-			}
-		);
+		indexInfos[itr.key().asString()] = IndexInfo {
+			BufferType(e["table"].asUInt()),
+			BufferType(e["type"].asUInt()),
+			SizeType(e["attrno"].asUInt())
+		};
 	}
 }
 
@@ -87,7 +84,7 @@ CatalogManager::~CatalogManager()
 		// StyledWriter
 	writer;
 	auto src = writer.write(root);
-	debug::print::ln(src);
+	// debug::print::ln(src);
 	auto &fs = icursor;
 	fs.seekp(0, std::ios::beg);
 	int size = src.length();
@@ -198,7 +195,7 @@ SizeType CatalogManager::getIndexAttribute(BufferType index_id)
 {
 	for (auto &e: indexInfos)
 	{
-		if (e.second.type = index_id)
+		if (e.second.type == index_id)
 		{
 			return e.second.attrno;
 		}

@@ -14,9 +14,6 @@ reflect([](AstType &ast){\
 // expr
 #include <lang/expr.hs>
 
-// alias
-#include <lang/alias.hs>
-
 // table
 #include <lang/table.hs>
 

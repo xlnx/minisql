@@ -14,7 +14,6 @@ IndexManager::IndexManager()
 
 IndexManager::~IndexManager()
 {
-
 	// TODO: free
 }
 
@@ -40,7 +39,6 @@ void IndexManager::initialize(const vector<pair<int, AttributeValue>> &rels)
 
 void IndexManager::dropAllIndex(int table_id)
 {
-	
 	vector<int>& trees = tablesToTrees[table_id];
 	for (auto index_id: trees)
 	{
@@ -98,7 +96,31 @@ BufferType IndexManager::createIndex(int table_id, Attributeno attrno)
 
 void IndexManager::dropIndex(int index_id)
 {
-	//
+	BPlusTree bplusTree = idToTree[index_id];
+	Node head = idToTree[index_id].root;
+	idToTree.erase(index_id);
+	Node data,now;
+	do {
+		now = head;
+		do {
+			data = now.next();
+			int tot = now.count();
+			for (int i = 0; i < tot; ++i) {
+				BufferManager::removeRef(data.data());
+				data = data.next();
+			}
+			now = data;
+		} while (now != nullptr);
+		head = head.son();
+	} while (head != nullptr);
+	int table_id = treesToTables[index_id];
+	treesToTables.erase(index_id);
+	vector<int>&trees = tablesToTrees[table_id];
+	for (auto it = trees.begin();it!= trees.end();++it)
+		if (*it == index_id) {
+			trees.erase(it);
+			return;
+		}
 }
 
 std::vector<Item> IndexManager::queryData(int index_id, const Pair &range, const Filter &filter)
@@ -137,7 +159,6 @@ std::vector<Item> IndexManager::queryData(int index_id, const Pair &range, const
 	}
 out:
 	return res;
-
 }
 
 int IndexManager::deleteData(int index_id, const Pair &range, const Filter &filter)
@@ -146,7 +167,7 @@ int IndexManager::deleteData(int index_id, const Pair &range, const Filter &filt
 	int table_id = treesToTables[index_id];
 	const vector<int> &trees = tablesToTrees[table_id];
 	vector<int> attrnos(trees.size());
-	vector<Pair>ranges;
+	vector<Pair> ranges;
 
 	for (auto i = 0; i != trees.size(); ++i)
 		attrnos[i] = idToTree[trees[i]].attrno;
@@ -186,7 +207,7 @@ int IndexManager::deleteData(int index_id, const Pair &range, const Filter &filt
 					if (ranges.size() == 0) {
 						ranges = vector<Pair>(trees.size());
 						for (int i = 0; i < trees.size(); ++i)
-							ranges[i] = Pair{ val[attrnos[i]],val[attrnos[i]] };
+							ranges[i] = Pair{ val[attrnos[i]].val(), val[attrnos[i]].val() };
 					}
 					else {
 						for (int i = 0; i < attrnos.size(); ++i) {
@@ -246,9 +267,11 @@ out:
 	BufferManager::registerRoot(root);//************************!!!!!!!!FBI WARNING!!!!!!
 	bplusTree.root = root;//***************fbi warning,insertingfunctions.cpp
 
-	for (int i = 0; i < trees.size(); ++i) {
-		if (trees[i] != index_id) {
-			recursivelydelete(idToTree[trees[i]], ranges[i], filter);
+	if (ranges.size()) {
+		for (int i = 0; i < trees.size(); ++i) {
+			if (trees[i] != index_id) {
+				recursivelydelete(idToTree[trees[i]], ranges[i], filter);
+			}
 		}
 	}
 

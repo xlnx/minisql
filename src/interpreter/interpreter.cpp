@@ -56,7 +56,15 @@ void Interpreter::interpret(const std::string &sql_insts)
 		{
 			src += l + "\n";
 		}
-		interpret(src);
+		API::doPrint = false;
+		auto sec = debug::time([&]
+		{
+			interpret(src);
+		});
+		std::ostringstream os;
+		os << std::dec << sec;
+		debug::print::ln("Query OK", "(" + os.str() + " sec)");
+		API::doPrint = true;
 	}
 }
 	
