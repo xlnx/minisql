@@ -107,14 +107,12 @@ public:
 		// static std::regex id("[A-Za-z_]\\w*", std::regex::nosubs | std::regex::optimize);
 		static auto id_val = "id"_t.value;
 
-		static std::regex key("insert|into|values|select|from|where|true|false|null|or|xor|and|not|quit|execfile|"
-			"create|table|unique|primary|key|drop|delete|index|on|show|tables|indexes|int|float|char|mod|div", 
+		static std::regex key("insert|into|values|select|from|where|true|false|and|not|quit|execfile|"
+			"create|table|unique|primary|key|drop|delete|index|on|show|tables|indexes|int|float|char", 
 				std::regex::nosubs | std::regex::optimize);
 
 		static std::regex num("\\d*\\.\\d+|\\d+\\.\\d*|\\d+(?:[eE]-?\\d+)?", std::regex::nosubs | std::regex::optimize);
 		static auto num_val = "number"_t.value;
-		
-		static std::regex oper("<<|>>|-|\\+|\\*|\\/|%|\\^|&&|\\|\\||&|,|>=|<=|!=|<>|>|<|=|:=|;|\\(|\\)|~|!");
 
 		if (*iter)
 		{
@@ -179,24 +177,24 @@ public:
 				switch (*iter)
 				{
 					case '>': {
-						if (iter[1] == '=' || iter[1] == '>')
-						{
-							len = 2;
-						}
-					} break;
-					case '<': {
-						if (iter[1] == '=' || iter[1] == '<' || iter[1] == '>') 
-						{
-							len = 2;
-						}
-					} break;
-					case '!': case ':': {
 						if (iter[1] == '=')
 						{
 							len = 2;
 						}
 					} break;
-					case '&': case '|': {
+					case '<': {
+						if (iter[1] == '=' || iter[1] == '>') 
+						{
+							len = 2;
+						}
+					} break;
+					case '!': {
+						if (iter[1] == '=')
+						{
+							len = 2;
+						}
+					} break;
+					case '&': {
 						if (iter[1] == *iter)
 						{
 							len = 2;
@@ -251,7 +249,7 @@ class reflected_lexer: public lexer<CharT>
 		reflected_lexer_init_element<AstTy, CharT>>;
 	reflected_lexer_initializer list;
 public:
-	std::map<long long, lexer_callback<AstTy, CharT>> handlers;
+	std::unordered_map<long long, lexer_callback<AstTy, CharT>> handlers;
 	template <class... T, typename = typename
 			std::enable_if<
 				tmp_and<

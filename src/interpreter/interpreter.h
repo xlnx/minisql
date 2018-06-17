@@ -25,7 +25,6 @@ public:
 		BufferElem,
 		TableAttribute,
 		std::vector<Value>,
-		std::vector<std::vector<Value>>,
 		std::vector<std::string>,
 		std::vector<TableAttribute>,
 		std::pair<bool, IsExprType>

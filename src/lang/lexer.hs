@@ -20,10 +20,6 @@
 "true"_t = "true"_riw, 
 "false"_t = "false"_riw, 
 
-"null"_t = "null"_riw, 
-
-"or"_t = "or"_riw, 
-"xor"_t = "xor"_riw, 
 "and"_t = "and"_riw, 
 "not"_t = "not"_riw, 
 
@@ -46,28 +42,15 @@
 "float"_t = "float"_riw,
 "char"_t = "char"_riw,
 
-"mod"_t = "mod"_riw, 
-"div"_t = "div"_riw, 
-
 "id"_t =
 	"[A-Za-z_]\\w*"_rw
 		>> lexer_reflect<AstType>([](const ::std::string &src) -> ValueType {
 			return std::string(src);
 		}),
-		
-"<<"_t, 
-">>"_t, 
-"-"_t, 
-"+"_t, 
-"*"_t, 
-"/"_t, 
-"%"_t, 
-"^"_t, 
 
+"-"_t, 
 "&&"_t, 
 "||"_t, 
-"|"_t, 
-"&"_t, 
 ","_t, 
 ">="_t, 
 "<="_t, 
@@ -76,11 +59,8 @@
 ">"_t, 
 "<"_t, 
 "="_t, 
-":="_t, 
 ";"_t,
 "("_t,
 ")"_t,
-"~"_t, 
-"!"_t, 
 
 "stray"_t = "."_r

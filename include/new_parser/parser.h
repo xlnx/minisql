@@ -25,12 +25,12 @@ class parser
 	reflected_lexer<AstTy, CharTy>& lex;
 	param_list params;
 	std::set<long long> signs;
-	std::vector<std::map<long long, action>> ACTION;		// [state][sign]->action->rule_id
-	std::vector<std::map<long long, std::size_t>> GOTO;		// [state][sign]->state
-	std::map<const parser_rule<AstTy>*, long long> parent_of;
-	std::map<const parser_rule<AstTy>*, std::size_t> index_of;
-	std::map<long long, parser_init_element<AstTy>*> param_of;
-	std::map<long long, std::set<long long>> FIRST, FOLLOW;
+	std::vector<std::unordered_map<long long, action>> ACTION;		// [state][sign]->action->rule_id
+	std::vector<std::unordered_map<long long, std::size_t>> GOTO;		// [state][sign]->state
+	std::unordered_map<const parser_rule<AstTy>*, long long> parent_of;
+	std::unordered_map<const parser_rule<AstTy>*, std::size_t> index_of;
+	std::unordered_map<long long, parser_init_element<AstTy>*> param_of;
+	std::unordered_map<long long, std::set<long long>> FIRST, FOLLOW;
 	struct item
 	{
 		const parser_rule<AstTy>& rule;
@@ -144,8 +144,8 @@ class parser
 			}
 		} while (gen_sub);
 		closures.emplace_back(std::move(I));
-		GOTO.emplace_back(std::map<long long, std::size_t>());
-		ACTION.emplace_back(std::map<long long, action>());
+		GOTO.emplace_back(std::unordered_map<long long, std::size_t>());
+		ACTION.emplace_back(std::unordered_map<long long, action>());
 	}
 public:
 	using exception_type = typename reflected_lexer<AstTy, CharTy>::exception_type;

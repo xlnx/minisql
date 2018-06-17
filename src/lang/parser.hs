@@ -30,7 +30,7 @@ reflect([](AstType &ast){\
 #include <lang/ddl.hs>
 
 "instructions"_p = 
-	"instructions"_p + "instruction"_p
+	"instructions"_p + "instruction_body"_p + ";"_t
 		>> Expand()
 	|""_t
 		>> NoReflect(),
@@ -44,9 +44,6 @@ reflect([](AstType &ast){\
 	|"inst_index"_p
 		>> Pass()
 	|"inst_delete"_p
-		>> Pass(),
-"instruction"_p = 
-	"instruction_body"_p + ";"_t
 		>> Pass(),
 
 "start"_p = 
