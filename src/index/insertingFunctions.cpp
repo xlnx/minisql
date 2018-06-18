@@ -177,7 +177,7 @@ bool IndexManager::recursivelyInsert(
 		Stack.pop();
 		if (data.son().count() == M) {
 			cutNode(data, index_id);
-			now.count(now.count());
+			now.count(now.count()+1);
 		}
 	}
 	if (root.count() == M) {

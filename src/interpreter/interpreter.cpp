@@ -51,22 +51,29 @@ void Interpreter::interpret(const std::string &sql_insts)
 	catch (std::string f)
 	{
 		std::ifstream is(f);
-		API::doPrint = false;
-		auto sec = debug::time([&,this]
+		if (is)
 		{
-			std::string pre = "", l;
-			while (getline(is, l))
+			API::doPrint = false;
+			auto sec = debug::time([&,this]
 			{
-				if ([&,this]{interpret(pre + l); return complete();}())
-					{pre = "";}
-				else
-					{pre += l + "\n";}
-			}
-		});
-		std::ostringstream os;
-		os << std::dec << sec;
-		debug::print::ln("Query OK", "(" + os.str() + " sec)");
-		API::doPrint = true;
+				std::string pre = "", l;
+				while (getline(is, l))
+				{
+					if ([&,this]{interpret(pre + l); return complete();}())
+						{pre = "";}
+					else
+						{pre += l + "\n";}
+				}
+			});
+			std::ostringstream os;
+			os << std::dec << sec;
+			debug::print::ln("Query OK", "(" + os.str() + " sec)");
+			API::doPrint = true;
+		}
+		else
+		{
+			std::cout << "minisql-interpreter: error: file not found: '" << f << "'." << std::endl;
+		}
 	}
 }
 	

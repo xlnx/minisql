@@ -896,7 +896,8 @@ void API::insert(
 					insertVal.emplace_back(float(values[i]->toNumber()));
 				} break;
 				case 0x20: {		// SQL_CHAR
-					insertVal.emplace_back(std::string(values[i]->toString()));
+					auto N = type[i] & 0x00ffff;
+					insertVal.emplace_back(std::string(values[i]->toString()).substr(0, N));
 				} break;
 				case 0x80: {
 					throw InterpretError("internal error.");

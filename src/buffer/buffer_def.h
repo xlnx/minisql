@@ -4,6 +4,7 @@
 #include <vector>
 #include <variant>
 #include <string>
+#include <queue>
 
 #define BLOCK_SIZE (1024 * 4)
 
@@ -42,7 +43,7 @@ using RefCount = ItemIndex;
 using ItemType = std::vector<BufferElem>;
 
 template <typename ...Args>
-using heap = std::vector<Args...>;
+using heap = std::deque<Args...>;
 
 }
 

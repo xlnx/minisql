@@ -13,7 +13,7 @@ else()
 endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "-pg -DDEBUG -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -pg")
 
 file(GLOB SQL_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 file(GLOB SQL_DIR "${CMAKE_SOURCE_DIR}/src/*")
