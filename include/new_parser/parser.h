@@ -1,6 +1,8 @@
 #pragma once
+
 #include "parser_initializer.h"
 #include "lexer.h"
+#include <algorithm>
 #include <set>
 #include <map>
 #include <queue>
@@ -25,12 +27,12 @@ class parser
 	reflected_lexer<AstTy, CharTy>& lex;
 	param_list params;
 	std::set<long long> signs;
-	std::vector<std::unordered_map<long long, action>> ACTION;		// [state][sign]->action->rule_id
-	std::vector<std::unordered_map<long long, std::size_t>> GOTO;		// [state][sign]->state
-	std::unordered_map<const parser_rule<AstTy>*, long long> parent_of;
-	std::unordered_map<const parser_rule<AstTy>*, std::size_t> index_of;
-	std::unordered_map<long long, parser_init_element<AstTy>*> param_of;
-	std::unordered_map<long long, std::set<long long>> FIRST, FOLLOW;
+	std::vector<std::map<long long, action>> ACTION;		// [state][sign]->action->rule_id
+	std::vector<std::map<long long, std::size_t>> GOTO;		// [state][sign]->state
+	std::map<const parser_rule<AstTy>*, long long> parent_of;
+	std::map<const parser_rule<AstTy>*, std::size_t> index_of;
+	std::map<long long, parser_init_element<AstTy>*> param_of;
+	std::map<long long, std::set<long long>> FIRST, FOLLOW;
 	struct item
 	{
 		const parser_rule<AstTy>& rule;
@@ -144,8 +146,8 @@ class parser
 			}
 		} while (gen_sub);
 		closures.emplace_back(std::move(I));
-		GOTO.emplace_back(std::unordered_map<long long, std::size_t>());
-		ACTION.emplace_back(std::unordered_map<long long, action>());
+		GOTO.emplace_back(std::map<long long, std::size_t>());
+		ACTION.emplace_back(std::map<long long, action>());
 	}
 public:
 	using exception_type = typename reflected_lexer<AstTy, CharTy>::exception_type;
@@ -438,93 +440,75 @@ public:
 public:
 	void parse(const CharTy* buffer)
 	{
-		std::queue<typename reflected_lexer<AstTy, CharTy>::value_type> tokens;
-		std::stack<std::pair<std::shared_ptr<AstTy>, long long>> new_asts;
+		std::vector<typename reflected_lexer<AstTy, CharTy>::value_type> tokens;
+		std::stack<std::pair<std::unique_ptr<AstTy>, long long>> new_asts;
+		tokens.reserve(64);
 		lex <= buffer;
 		while (!lex.empty()) {
-			tokens.push(lex.next());
+			tokens.emplace_back(std::move(lex.next()));
 		}
+		auto curr = tokens.begin();
 		//std::cout << tokens.front().value;
-		std::stack<std::size_t> states;
-		std::vector<std::shared_ptr<AstTy>> ast_stack;
+		std::vector<std::size_t> states;
+		states.reserve(128);
+		std::vector<std::unique_ptr<AstTy>> ast_stack;
+		ast_stack.reserve(64);
 		std::vector<typename reflected_lexer<AstTy, CharTy>::value_type> term_stack;
-		states.push(0);
+		term_stack.reserve(64);
+		states.emplace_back(0);
 		auto merge = [&](const parser_rule<AstTy>* rule)
 		{
-			std::shared_ptr<ast_base> this_ast(std::make_shared<AstTy>(ast_base(rule->ast_data)));
-			//if (rule->size() > 1 || (*rule)[0].value != empty_elem)
-			//{
-			std::size_t ast_size = 0, term_size = 0;
-			for (auto& dummy: *rule)
-			{
-				if (dummy.value <= 0) ast_size++;
-					else term_size++;
-			}
-			for (auto itr = ast_stack.end() - ast_size; itr != ast_stack.end(); ++itr)
-			{
-				this_ast->sub_ast.emplace_back(*itr);
-			}
-			for (auto itr = term_stack.end() - term_size; itr != term_stack.end(); ++itr)
-			{
-				this_ast->sub_terms.emplace_back(std::move(lex.handlers[itr->id](itr->value)));
-			}
-			for (auto& dummy: *rule)
-			{
-				states.pop(); if (dummy.value <= 0) ast_stack.pop_back();
-					else term_stack.pop_back();
-			}
+			std::unique_ptr<ast_base> this_ast(std::make_unique<AstTy>(ast_base(rule->ast_data)));
+			this_ast->sub_ast.resize(rule->ast_size);
+			std::transform(std::make_move_iterator(ast_stack.end() - rule->ast_size), std::make_move_iterator(ast_stack.end()), 
+				this_ast->sub_ast.begin(), std::move<std::unique_ptr<AstTy>>);
+			ast_stack.resize(ast_stack.size() - rule->ast_size);
+			this_ast->sub_terms.resize(rule->term_size);
+			std::transform(term_stack.end() - rule->term_size, term_stack.end(),
+				this_ast->sub_terms.begin(), [&](const typename reflected_lexer<AstTy, CharTy>::value_type &tok)
+					{ return lex.handlers[tok.id](tok.value); });
+			term_stack.resize(term_stack.size() - rule->term_size);
+			states.resize(states.size() - rule->size());
 			//}		// sub_rules
 			rule->ast_data.on_parse(*this_ast);
 			new_asts.push(make_pair(std::move(this_ast), parent_of[rule]));
 		};
-		auto match = [&](long long sign)->bool
-		{
-			//std::cout << states.top() << " " << sign << std::endl;
-			switch (ACTION[states.top()][sign].flag)
+		do {
+			auto sign = new_asts.empty() ?
+				curr == tokens.end() ? stack_bottom : curr->id : new_asts.top().second;
+			switch (ACTION[states.back()][sign].flag)
 			{
 			case a_move_in: {
 				//std::cout << "movein" << std::endl;
-				states.push(GOTO[states.top()][sign]);
+				states.emplace_back(GOTO[states.back()][sign]);
 				if (sign >= 0)
-					term_stack.emplace_back(tokens.front()), tokens.pop();
+					term_stack.emplace_back(std::move(*curr++));
 				else
-					ast_stack.emplace_back(new_asts.top().first), new_asts.pop();
-			} break;
+					ast_stack.emplace_back(std::move(new_asts.top().first)), new_asts.pop();
+			} continue;
 			case a_hold: {
-				//std::cout << "hold" << std::endl;
-				std::size_t state = states.top();
-				states.push(0);
-				ast_stack.emplace_back(std::make_shared<AstTy>(
+				std::size_t state = states.back();
+				states.emplace_back(0);
+				ast_stack.emplace_back(std::make_unique<AstTy>(
 					ast_base(ACTION[state][sign].rule->ast_data)));
 				merge(ACTION[state][sign].rule);
-			} break;
+			} continue;
+			case a_reduce: {
+				merge(ACTION[states.back()][sign].rule);
+			} continue;
 			case a_accept: {
-				if (ast_stack.size() == 1 && tokens.empty() && new_asts.empty()
-						&& term_stack.empty()) return true;
+				if (ast_stack.size() == 1 && curr == tokens.end() && new_asts.empty()
+						&& term_stack.empty()) goto out;
 			}
 			case a_error: {
-				if (tokens.empty())
+				if (curr == tokens.end())
 					lex.handle_exception();
-					// throw exception_type();//std::bad_cast();
 				else
-					lex.handle_exception(tokens.front(), "invalid syntax");
-					// throw exception_type(tokens.front());
+					lex.handle_exception(*curr, "invalid syntax");
 			}
-			case a_reduce: {
-				//std::cout << "reduce" << std::endl;
-				merge(ACTION[states.top()][sign].rule);
-			}
-			}
-			return false;
-		};
-		do {
-			if (new_asts.empty()) {
-				if (match(tokens.empty() ? stack_bottom : tokens.front().id)) break;
-			} else {
-				if (match(new_asts.top().second)) break;
 			}
 		} while (1);
-		try
+		out: try
 		{
 			ast_stack.front()->gen();
 		}

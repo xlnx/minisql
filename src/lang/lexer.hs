@@ -17,11 +17,7 @@
 "from"_t = "from"_riw, 
 "where"_t = "where"_riw, 
 
-"true"_t = "true"_riw, 
-"false"_t = "false"_riw, 
-
 "and"_t = "and"_riw, 
-"not"_t = "not"_riw, 
 
 "quit"_t = "quit"_riw,
 "execfile"_t = "execfile"_riw,

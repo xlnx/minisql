@@ -10,11 +10,6 @@ namespace minisql
 namespace __buffer
 {
 
-Attribute::Attribute(Item item, SizeType index):
-	item(item), index(index), value(BufferManager::readAttribute(*this))
-{
-}
-
 const std::string Attribute::typeName() const
 {
 	return BufferManager::getTypeName(BufferManager::files[item.type]->elems[index]);
@@ -39,11 +34,6 @@ std::ostream &operator << (std::ostream &os, const Attribute &attr)
 const std::string Item::typeName() const
 {
 	return BufferManager::demangle(type);
-}
-
-const Attribute Item::operator [] (std::size_t attrno) const 
-{
-	return Attribute(*this, attrno);
 }
 
 const Attribute Item::attr (std::size_t attrno) const 

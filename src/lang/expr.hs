@@ -59,34 +59,18 @@
 		>> reflect([](AstType &ast) -> ValueType {
 			return createLiteral(std::get<std::string>(ast.term(0)));
 		})
-	|"true"_t
-		>> reflect([](AstType &ast) -> ValueType {
-			return createLiteral(true);
-		})
-	|"false"_t
-		>> reflect([](AstType &ast) -> ValueType {
-			return createLiteral(false);
-		})
 	|"id"_t
 		>> reflect([](AstType &ast) -> ValueType {
 			return createColumn(std::get<std::string>(ast.term(0)));
 		})
 	|"("_t + "expr"_p + ")"_t
 		>> Pass(),
-"not|bool|null"_p = 
-	"true"_t
+"literal"_p = 
+	"number"_t
 		>> reflect([](AstType &ast) -> ValueType {
-			return std::make_pair(false, IsTrue);
+			return std::make_unique<Number>(std::get<double>(ast.term(0)));
 		})
-	|"not"_t + "true"_t
+	|"string"_t
 		>> reflect([](AstType &ast) -> ValueType {
-			return std::make_pair(true, IsTrue);
-		})
-	|"false"_t
-		>> reflect([](AstType &ast) -> ValueType {
-			return std::make_pair(false, IsFalse);
-		})
-	|"not"_t + "false"_t
-		>> reflect([](AstType &ast) -> ValueType {
-			return std::make_pair(true, IsFalse);
+			return std::make_unique<String>(std::move(std::get<std::string>(ast.term(0))));
 		}),

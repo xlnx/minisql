@@ -107,9 +107,10 @@ public:
 		// static std::regex id("[A-Za-z_]\\w*", std::regex::nosubs | std::regex::optimize);
 		static auto id_val = "id"_t.value;
 
-		static std::regex key("insert|into|values|select|from|where|true|false|and|not|quit|execfile|"
-			"create|table|unique|primary|key|drop|delete|index|on|show|tables|indexes|int|float|char", 
-				std::regex::nosubs | std::regex::optimize);
+		static std::set<std::string> keys = {"insert", "into", "values", "select", 
+			"from", "where", "and", "quit", "execfile", "create", "table", "unique", 
+			"primary", "key", "drop", "delete", "index", "on", "show", "tables", 
+			"indexes", "int", "float", "char"};
 
 		static std::regex num("\\d*\\.\\d+|\\d+\\.\\d*|\\d+(?:[eE]-?\\d+)?", std::regex::nosubs | std::regex::optimize);
 		static auto num_val = "number"_t.value;
@@ -142,19 +143,21 @@ public:
 				{
 					it++;
 				}
+				auto len = it - iter;
 				std::string res(iter, it);
 				std::transform(iter, it, res.begin(), ::tolower);
 				unsigned row = lines.size() - 1;
 				std::swap(iter, it);
 				while (*iter && spaces.find_first_of(*iter) != string_type::npos)
 						if (*iter++ == '\n') lines.push_back(iter); 
-				if (std::regex_match(res, key))
+				if (keys.count(res))
 				{
-					return { operator ""_t(res.c_str(), res.size()).value, res, row, unsigned(it - &lines[row][0]) };
+					auto val = operator ""_t(res.c_str(), len).value;
+					return { val, std::move(res), row, unsigned(it - &lines[row][0]) };
 				}
 				else
 				{
-					return { id_val, res, row, unsigned(it - &lines[row][0]) };
+					return { id_val, std::move(res), row, unsigned(it - &lines[row][0]) };
 				}
 			}
 			else if (*iter >= '0' && *iter <= '9')
@@ -169,7 +172,7 @@ public:
 				std::swap(iter, it);
 				while (*iter && spaces.find_first_of(*iter) != string_type::npos)
 						if (*iter++ == '\n') lines.push_back(iter); 
-				return { num_val, res, row, unsigned(it - &lines[row][0]) };
+				return { num_val, std::move(res), row, unsigned(it - &lines[row][0]) };
 			}
 			else
 			{
@@ -207,7 +210,8 @@ public:
 				iter += len;
 				while (*iter && spaces.find_first_of(*iter) != string_type::npos)
 						if (*iter++ == '\n') lines.push_back(iter); 
-				return { operator ""_t(res.c_str(), res.size()).value, res, row, unsigned(it - &lines[row][0]) };
+				auto val = operator ""_t(res.c_str(), len).value;
+				return { val, std::move(res), row, unsigned(it - &lines[row][0]) };
 			}
 			auto itr = iter;
 			auto iter_ln = itr;

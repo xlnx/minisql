@@ -87,20 +87,6 @@ void BufferManager::registerRoot(Item item)
 	files[item.type]->root = item;
 }
 
-void BufferManager::ensureCached(Block &block)
-{
-	if (!block.data)
-	{
-		if (cachedBlocks.size() > MAX_CACHE_BLOCK_COUNT)
-		{		// delete cache
-			cachedBlocks.back()->release();
-			cachedBlocks.pop_back();
-		}
-		block.cache();
-		cachedBlocks.push_back(&block);
-	}
-}
-
 void BufferManager::writeHeader()
 {
 	BufferManagerInfo info;
@@ -153,16 +139,6 @@ char *BufferManager::insert(BufferType scope, ItemIndex &index)
 	memcpy(ptr + file.attrOffset.back(), reinterpret_cast<const char*>(&n), sizeof(RefCount));
 	block->isModified = true;
 	return ptr;
-}
-
-char *BufferManager::read(BufferType scope, ItemIndex index)
-{
-	auto &file = *files[scope];
-	auto blockid = index / file.blockCapacity;
-	auto id = index % file.blockCapacity;
-	auto block = file.blocks[blockid];
-	ensureCached(*block);
-	return block->data + file.size * id;
 }
 
 char *BufferManager::write(BufferType scope, ItemIndex index)
@@ -237,40 +213,6 @@ void BufferManager::doWriteAttribute(File &file, char *dest, const AttributeValu
 			}
 		} break;
 	}
-}
-
-AttributeValue BufferManager::doReadAttribute(File &file, char *dest, SizeType i)
-{
-	switch ((file.elems[i] & 0xff0000) >> 16)
-	{
-		case 0x10: {		// SQL_INT
-			return *reinterpret_cast<int*>(dest + file.attrOffset[i]);
-		} break;
-		case 0x40: {		// SQL_FLOAT
-			return *reinterpret_cast<float*>(dest + file.attrOffset[i]);
-		} break;
-		case 0x20: {
-			auto beg = dest + file.attrOffset[i];
-			auto s = std::string(beg, beg + (file.elems[i] & 0x00ffff));
-			return s.substr(0, s.find('\0'));
-		} break;
-		case 0x80: {
-			auto idx = *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]);
-			if (idx == SQL_NULL) {
-				return NullType();
-			}
-			else switch (file.elems[i] & 0x0000ff)
-			{
-				case 0x01: {	// DATA
-					return Item(file.dataType, idx);
-				} break;
-				case 0x02: {	// NODE
-					return Item(file.type, idx);
-				} break;
-			}
-		} break;
-	}
-	throw 0;
 }
 
 void BufferManager::doWriteItem(File &file, char *dest, const ItemValue &data)

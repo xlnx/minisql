@@ -112,6 +112,11 @@ public:
 	friend std::ostream &operator << (std::ostream &os, const Attribute &attr);
 };
 
+inline const Attribute Item::operator [] (std::size_t attrno) const
+{
+	return Attribute(*this, attrno);
+}
+
 class File;
 
 class Block final
@@ -186,18 +191,70 @@ private:
 	static void writeHeader();
 	static void writeIndex();
 
-	static void ensureCached(Block &block);
+	static void ensureCached(Block &block)
+	{
+		if (!block.data)
+		{
+			if (cachedBlocks.size() > MAX_CACHE_BLOCK_COUNT)
+			{		// delete cache
+				cachedBlocks.back()->release();
+				cachedBlocks.pop_back();
+			}
+			block.cache();
+			cachedBlocks.push_back(&block);
+		}
+	}
 	static std::string getTypeName(BufferElem);
 
 	static char *insert(BufferType scope, ItemIndex &index);
-	static char *read(BufferType scope, ItemIndex index);
+	static char *read(BufferType scope, ItemIndex index)
+	{
+		auto &file = *files[scope];
+		auto blockid = index / file.blockCapacity;
+		auto id = index % file.blockCapacity;
+		auto block = file.blocks[blockid];
+		ensureCached(*block);
+		return block->data + file.size * id;
+	}
 	static char *write(BufferType scope, ItemIndex index);
 
 	static void doWriteItem(File &file, char *dest, const ItemValue &data);
 	static ItemValue doReadItem(File &file, char *dest);
 
 	static void doWriteAttribute(File &file, char *dest, const AttributeValue &val, SizeType index);
-	static AttributeValue doReadAttribute(File &file, char *dest, SizeType index);
+	static AttributeValue doReadAttribute(File &file, char *dest, SizeType i)
+	{
+		switch ((file.elems[i] & 0xff0000) >> 16)
+		{
+			case 0x10: {		// SQL_INT
+				return *reinterpret_cast<int*>(dest + file.attrOffset[i]);
+			} break;
+			case 0x40: {		// SQL_FLOAT
+				return *reinterpret_cast<float*>(dest + file.attrOffset[i]);
+			} break;
+			case 0x20: {
+				auto beg = dest + file.attrOffset[i];
+				auto s = std::string(beg, beg + (file.elems[i] & 0x00ffff));
+				return s.substr(0, s.find('\0'));
+			} break;
+			case 0x80: {
+				auto idx = *reinterpret_cast<ItemIndex*>(dest + file.attrOffset[i]);
+				if (idx == SQL_NULL) {
+					return NullType();
+				}
+				else switch (file.elems[i] & 0x0000ff)
+				{
+					case 0x01: {	// DATA
+						return Item(file.dataType, idx);
+					} break;
+					case 0x02: {	// NODE
+						return Item(file.type, idx);
+					} break;
+				}
+			} break;
+		}
+		throw 0;
+	}
 public:
 	BufferManager();
 	~BufferManager();
@@ -243,6 +300,11 @@ public:
 	static void removeRef(Item item);
 	static void addRef(Item item);
 };
+
+inline Attribute::Attribute(Item item, SizeType index):
+	item(item), index(index), value(BufferManager::readAttribute(*this))
+{
+}
 
 // query -> block=2/bid=2 -> file -> 
 }

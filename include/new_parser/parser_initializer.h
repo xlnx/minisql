@@ -90,6 +90,8 @@ struct parser_rule
 {
 	element_list params;
 	parser_ast_data<AstTy> ast_data;
+	std::size_t term_size = 0;
+	std::size_t ast_size = 0;
 	using iterator = typename element_list::const_iterator;
 	const element& operator [](std::size_t idx) const
 		{ return params[idx]; }
@@ -104,14 +106,20 @@ struct parser_rule
 public:
 	constexpr parser_rule(const element& elem):
 		// element(~element_count++),
-		params({elem}) {}
+		params({elem}) 
+	{
+		for (auto& dummy: *this) { if (dummy.value <= 0) ast_size++; else term_size++; }
+	}
 	constexpr parser_rule(
 			const element_list& rules,
 			const parser_ast_data<AstTy>& data =
 				parser_ast_data<AstTy>()):
 		// element(~element_count++),
 		params(rules),
-		ast_data(data) {}
+		ast_data(data)
+	{
+		for (auto& dummy: *this) { if (dummy.value <= 0) ast_size++; else term_size++; }
+	}
 };
 // private:
 	// static unsigned element_count;

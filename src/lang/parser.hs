@@ -27,21 +27,23 @@ reflect([](AstType &ast){\
 #include <lang/ddl.hs>
 
 "instructions"_p = 
-	"instructions"_p + "instruction_body"_p + ";"_t
+	"instructions"_p + "inst_select"_p + ";"_t
+		>> Expand()
+	|"instructions"_p + "insert"_t + "into"_t + "id"_t + "values"_t + "("_t + "value_list"_p + ")"_t + ";"_t
+		>> reflect([](AstType &ast) -> ValueType {
+			ast[0].gen();
+			API::insert(std::get<std::string>(ast.term(2)), 
+				std::get<std::vector<Value>>(ast[1].gen()));
+			return ValueType();
+		})
+	|"instructions"_p + "inst_ddl"_p + ";"_t
+		>> Expand()
+	|"instructions"_p + "inst_index"_p + ";"_t
+		>> Expand()
+	|"instructions"_p + "inst_delete"_p + ";"_t
 		>> Expand()
 	|""_t
 		>> NoReflect(),
-"instruction_body"_p = 
-	"inst_select"_p
-		>> Pass()
-	|"inst_insert"_p
-		>> Pass()
-	|"inst_ddl"_p
-		>> Pass()
-	|"inst_index"_p
-		>> Pass()
-	|"inst_delete"_p
-		>> Pass(),
 
 "start"_p = 
 	"instructions"_p
