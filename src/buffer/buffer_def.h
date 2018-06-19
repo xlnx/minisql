@@ -18,7 +18,7 @@
 
 #define SQL_NONE_TYPE 0x0
 
-#define MAX_CACHE_BLOCK_COUNT (1024) // 4kb * 1024 = 4 MB
+#define MAX_CACHE_BLOCK_COUNT (1024 * 32) // 4kb * 1024 = 4 MB
 
 #define SQL_NULL (-1)
 #define SQL_NAP (-2)

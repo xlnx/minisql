@@ -114,7 +114,7 @@ public:
 class IndexManager
 {
 	struct BPlusTree;
-	constexpr static int M = 10;
+	constexpr static int M = 6;
 
 	static map<int, vector<int>> tablesToTrees;
 	static map<int, int> treesToTables;
