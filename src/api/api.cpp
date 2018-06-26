@@ -780,7 +780,15 @@ void API::createTable(
 		auto t = BufferManager::registerBufferType(ty);
 		CatalogManager::registerTableInfo(t, table, attrs);
 		auto u = IndexManager::createIndex(t, pkid);
-		CatalogManager::registerIndexInfo(t, u, pkid, pk);
+		CatalogManager::registerIndexInfo(t, u, pkid, "." + pk);
+		for (auto i = 0; i != attrs.size(); ++i)
+		{
+			if (attrs[i].isUnique)
+			{
+				auto u = IndexManager::createIndex(t, i);
+				CatalogManager::registerIndexInfo(t, u, i, "." + attrs[i].name);
+			}
+		}
 	});
 	using namespace debug::strutil;
 	if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
@@ -842,15 +850,29 @@ void API::createIndex(
 		}
 		for (auto &e: CatalogManager::getIndexProperties(table))
 		{
-			if (e.attrno == pos)
+			if (e.attrno == pos && e.name[0] != '.')
 			{
 				throw InterpretError("index named '" + e.name + "' for attribute '" + attr + "' already exists.");
 			}
 		}
+		if (CatalogManager::indexExist(indexName))
+		{
+			throw InterpretError("index named '" + indexName + "' already exists.");
+		}
 
 		auto table_id = CatalogManager::getTableId(table);
-		auto u = IndexManager::createIndex(table_id, pos);
-		CatalogManager::registerIndexInfo(table_id, u, pos, indexName);
+		BufferType index_id;
+		for (auto &e: CatalogManager::getIndexProperties(table))
+		{
+			if (e.attrno == pos)
+			{
+				index_id = e.index_id;
+				break;
+			}
+		}
+
+		// auto u = IndexManager::createIndex(table_id, pos);
+		CatalogManager::registerIndexInfo(table_id, index_id, pos, indexName);
 	});
 	using namespace debug::strutil;
 	if (doPrint) debug::print::ln("Query OK", "("_s + sec + " sec)");
@@ -862,8 +884,8 @@ void API::dropIndex(
 {
 	auto sec = debug::time([&]
 	{
-		auto index_id = CatalogManager::getIndexId(indexName);
-		IndexManager::dropIndex(index_id);
+		// auto index_id = CatalogManager::getIndexId(indexName);
+		// IndexManager::dropIndex(index_id);
 		CatalogManager::removeIndexInfo(indexName);
 	});
 	using namespace debug::strutil;
@@ -945,7 +967,7 @@ void API::showIndexs(const std::string &tableName)
 		s.createRow().emplace_back("index_of_" + tableName);
 		for (auto &e: CatalogManager::getIndexProperties(tableName))
 		{
-			s.createRow().emplace_back(e.name);
+			if (e.name[0] != '.') s.createRow().emplace_back(e.name);
 		}
 		n = s.size() - 1;
 		std::cout << s << std::endl;

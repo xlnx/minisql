@@ -174,9 +174,9 @@ void CatalogManager::removeIndexInfo(const std::string &indexName)
 	}
 }
 
-bool CatalogManager::indexExist(const std::string &tableName)
+bool CatalogManager::indexExist(const std::string &indexName)
 {
-	return indexInfos.count(tableName);
+	return indexInfos.count(indexName);
 }
 
 BufferType CatalogManager::getIndexId(const std::string &indexName)
@@ -226,6 +226,11 @@ std::vector<IndexProperty> CatalogManager::getIndexProperties(const std::string 
 		}
 	}
 	return vec;
+}
+
+bool CatalogManager::indexNameExists(const std::string &indexName)
+{
+	return indexInfos.count(indexName);
 }
 
 std::vector<TableAttribute> CatalogManager::getAttributeProperties(const std::string &tableName)

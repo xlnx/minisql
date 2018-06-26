@@ -76,6 +76,7 @@ public:
 	static SizeType getIndexAttribute(BufferType id);
 	static std::vector<std::string> getIndexNames();
 	static std::vector<IndexProperty> getIndexProperties(const std::string &tableName);
+	bool indexNameExists(const std::string &indexName);
 };
 
 }
